@@ -54,7 +54,7 @@ This shows the defended publisher and subscriber working together. All messages 
 **Terminal 1 -- Start the mTLS broker:**
 
 ```bash
-docker run -it --name mosquitto-mtls -p 8883:8883 -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/certs eclipse-mosquitto
+docker run -it --name mosquitto-mtls -p 8883:8883 -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
 ```
 
 **Terminal 2 -- Start the defended subscriber:**
