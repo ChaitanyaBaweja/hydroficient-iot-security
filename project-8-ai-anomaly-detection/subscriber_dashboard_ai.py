@@ -81,7 +81,7 @@ ai_model = None
 # =============================================================================
 # AI Model: Feature Extraction
 # =============================================================================
-AI_MODEL_PATH = "anomaly_model.joblib"
+AI_MODEL_PATH = "project-8-ai-anomaly-detection/anomaly_model.joblib"
 
 # Feature names must match the order used during training
 FEATURE_NAMES = ["pressure_upstream", "flow_rate", "gate_a_position"]
