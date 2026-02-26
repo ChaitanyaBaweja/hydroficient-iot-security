@@ -4,7 +4,9 @@ Identify security threats to an IoT water monitoring system using the STRIDE fra
 
 ## What's New in This Project
 
-This is the first project in the externship. It introduces security thinking — how to systematically identify what could go wrong before writing any code. No programming is required.
+This is the first project in the externship. Before writing any code to secure the hotel's water system, you need to understand what could go wrong. Threat modeling is how security professionals think about this systematically. STRIDE gives you six categories of threats to check against every component of the system. The threat model you build here becomes the blueprint for everything you build in Projects 3 through 8.
+
+No programming is required for this project.
 
 ## What You'll Build
 

@@ -22,6 +22,8 @@ python project-5-mtls/generate_client_certs.py
 
 This will create a new CA and all device certificates.
 
-## Production Warning
+## Security Notice
 
-In production, private keys (`.pem` files ending in `-key`) are stored securely and never committed to version control. Certificate Authorities are run by trusted organizations, not generated locally. These pre-generated certs are for learning purposes only.
+The private keys in this directory (`server-key.pem`, `device-001-key.pem`) are **intentionally committed** for learning purposes. They are self-signed, scoped to `localhost`, and have no value outside this repo. GitHub's secret scanning may flag them — this is expected and safe to dismiss.
+
+In production, private keys (`.pem` files ending in `-key`) are stored securely and **never** committed to version control. Certificate Authorities are run by trusted organizations, not generated locally.

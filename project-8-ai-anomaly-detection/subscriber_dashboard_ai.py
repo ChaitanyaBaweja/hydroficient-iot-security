@@ -91,6 +91,10 @@ def extract_features(readings):
     """
     Extract feature vector from sensor readings for AI scoring.
     Returns a numpy array shaped (1, n_features) ready for model.predict().
+
+    We use three features because the Isolation Forest was trained on these same
+    three values. The order must match: [pressure, flow, gate]. Using .get()
+    with fallbacks handles both P5-style field names and P3-style field names.
     """
     features = [
         readings.get("pressure_upstream", readings.get("pressure_psi", 0)),
@@ -264,7 +268,9 @@ def on_message(client, userdata, msg):
         seq = data.get("sequence", "N/A")
 
         if accepted:
-            # Message passed all rules — now score with AI
+            # Rules first, then AI: rules block known-bad messages (red) before the AI
+            # model ever sees them. AI only scores messages that passed all rule checks,
+            # looking for subtle anomalies in the sensor values themselves (orange).
             sensor_data = data.get("readings", {})
             is_anomaly, ai_score = score_with_ai(sensor_data)
 

@@ -96,10 +96,8 @@ This downloads about 10 MB. You only need to do this once.
 If you have not already cloned the project repository, run:
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/ChaitanyaBaweja/hydroficient-iot-security.git
 ```
-
-Replace `<repo-url>` with the actual URL provided by your externship coordinator.
 
 Then move into the project folder:
 

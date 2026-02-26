@@ -99,7 +99,15 @@ When everything is running correctly:
 
 - The **publisher** prints `Connected successfully over TLS!` and begins sending sensor readings every 3 seconds across three hotel zones (Main Building, Pool & Spa, Kitchen & Laundry).
 - The **subscriber** prints `Connected successfully over TLS!` and displays each incoming reading with pressure, flow rate, and valve position.
-- All traffic between the clients and broker is encrypted. If you captured the network traffic, you would see ciphertext instead of readable JSON.
+
+```
+# Subscriber output
+2024-01-15 14:30:45 - INFO - Connected successfully over TLS!
+2024-01-15 14:30:48 - INFO - [RECEIVED] Main Building: pressure=82.3 PSI, flow=41.2 GPM, valve=65%
+2024-01-15 14:30:51 - INFO - [RECEIVED] Pool & Spa: pressure=78.1 PSI, flow=58.7 GPM, valve=72%
+```
+
+All traffic between the clients and broker is encrypted. If you captured the network traffic, you would see ciphertext instead of readable JSON.
 
 ## Code Overview
 
@@ -118,6 +126,11 @@ When everything is running correctly:
 **Broker not starting.** If Mosquitto fails to start, check that the certificate files exist and that the paths in `mosquitto_tls.conf` match where Docker mounts them. Inside the container, the certs should be at `/mosquitto/config/certs/`. Also verify that Docker has permission to read the cert files.
 
 **`SSL: CERTIFICATE_VERIFY_FAILED`.** This means the client does not trust the broker's certificate. The most common cause is using a different CA certificate than the one that signed the server certificate. Regenerate all certificates with `generate_certs.py` and restart the broker.
+
+## How to Stop
+
+1. Press `Ctrl+C` in each terminal window to stop the Python scripts.
+2. Stop the broker: `docker stop mosquitto && docker rm mosquitto`
 
 ## Resources
 

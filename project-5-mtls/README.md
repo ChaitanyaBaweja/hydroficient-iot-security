@@ -107,9 +107,25 @@ python project-5-mtls/mtls_benchmark.py --mode latency --count 50
 
 When everything is running correctly:
 
-- The **publisher** prints `Connected to broker as HYDROLOGIC-Device-001` and `Certificate identity verified by broker`, then publishes sensor readings (pressure, flow rate, gate positions) every 5 seconds.
-- The **subscriber** prints `Connected to broker as GrandMarina-Dashboard` and displays each incoming reading in a formatted block with device ID, flow rate, upstream/downstream pressure, and status.
-- Running `identity_tester.py --mode all` produces a 4-test summary where the valid-cert test passes with a successful connection, and the other three (no cert, wrong CA, expired) are correctly rejected. All 4 tests should show `TEST PASSED`.
+- The **publisher** prints `Connected to broker as HYDROLOGIC-Device-001` and `Certificate identity verified by broker`, then publishes sensor readings every 5 seconds.
+- The **subscriber** prints `Connected to broker as GrandMarina-Dashboard` and displays each incoming reading.
+
+```
+# Publisher output
+[SUCCESS] Connected to broker as HYDROLOGIC-Device-001
+[INFO] Certificate identity verified by broker
+[1] Published: 50.23 LPM
+
+# Subscriber output
+==================================================
+[RECEIVED] Topic: hydroficient/grandmarina/device-001/sensors
+  Device: HYDROLOGIC-Device-001
+  Flow Rate: 50.23 LPM
+  Pressure (Up): 60.12 PSI
+  Status: operational
+```
+
+Running `identity_tester.py --mode all` produces a 4-test summary where the valid-cert test passes with a successful connection, and the other three (no cert, wrong CA, expired) are correctly rejected. All 4 tests should show `TEST PASSED`.
 
 ## Code Overview
 
@@ -130,6 +146,11 @@ When everything is running correctly:
 **Device certificate not found.** The publisher and subscriber look for certificate files like `certs/device-001.pem` relative to where you run the command. Always run scripts from the repo root. If the files do not exist, run `python project-5-mtls/generate_client_certs.py` first.
 
 **Broker rejecting all connections.** Check your `mosquitto_mtls.conf` file and confirm it includes `require_certificate true` and points to the correct `cafile`. The broker needs the CA certificate to verify incoming client certificates. If you regenerated certificates, restart the broker so it loads the new CA.
+
+## How to Stop
+
+1. Press `Ctrl+C` in each terminal window to stop the Python scripts.
+2. Stop the broker: `docker stop mosquitto && docker rm mosquitto`
 
 ## Resources
 

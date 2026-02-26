@@ -73,7 +73,7 @@ def verify_hmac(message_dict):
     if received_hmac is None:
         return False, "No HMAC field in message"
 
-    # Compute what the HMAC should be
+    # Recompute the HMAC the same way the publisher did (remove hmac field, sort keys)
     msg_copy = {k: v for k, v in message_dict.items() if k != "hmac"}
     msg_string = json.dumps(msg_copy, sort_keys=True)
 
@@ -83,6 +83,9 @@ def verify_hmac(message_dict):
         hashlib.sha256
     ).hexdigest()
 
+    # compare_digest() is timing-safe: it always takes the same amount of time regardless of
+    # where the strings differ. A regular == comparison leaks information about which character
+    # failed first, which an attacker could exploit to guess the correct HMAC one byte at a time.
     if hmac.compare_digest(received_hmac, expected_hmac):
         return True, ""
     else:
@@ -146,12 +149,13 @@ def check_sequence(message_dict):
 # =============================================================================
 def validate_message(message_dict):
     """
-    Run all three validation checks in order: HMAC → Timestamp → Sequence.
+    Run all three validation checks in order: HMAC -> Timestamp -> Sequence.
 
-    Why this order?
-    - HMAC first: if the message was tampered with, no point checking the rest
-    - Timestamp second: catches old replayed messages
-    - Sequence last: catches recent replays that pass the timestamp check
+    Why this order matters:
+    - HMAC first: if the signature doesn't match, the message may have been tampered
+      with, so the timestamp and sequence fields can't be trusted either.
+    - Timestamp second: catches old replayed messages (>30 seconds old).
+    - Sequence last: catches recent replays that sneak past the timestamp window.
 
     Returns (True, results_dict) if all pass, (False, results_dict) if any fail.
     """

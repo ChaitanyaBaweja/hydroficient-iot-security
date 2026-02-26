@@ -67,6 +67,8 @@ Run all commands from the **repo root directory** (`hydroficient-iot-security/`)
 docker run -it --name mosquitto -p 8883:8883 -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
 ```
 
+> **Windows note:** Replace `$(pwd)` with `%cd%` (Command Prompt) or `${PWD}` (PowerShell).
+
 **Terminal 2 -- Start the dashboard server:**
 
 ```bash
@@ -98,8 +100,18 @@ python project-8-ai-anomaly-detection/anomaly_injector.py
 ## What to Expect
 
 - **Green messages:** Normal sensor data from `publisher_defended.py`. Both rule-based checks and the AI model agree the readings are fine.
-- **Orange messages:** Anomalous sensor data from `anomaly_injector.py`. Rules pass (valid HMAC, fresh timestamp, new sequence number) but the AI model flags the readings as unusual.
-- **Red messages:** Invalid messages (for example, if you also run the attack simulator from Project 7). Rules block these before the AI model ever sees them.
+- **Orange messages:** Anomalous sensor data from `anomaly_injector.py`. Rules pass but the AI model flags the readings as unusual.
+- **Red messages:** Invalid messages (tampered HMAC, stale timestamp, replayed sequence). Rules block these before the AI model ever sees them.
+
+```
+# Green — normal reading
+[ACCEPTED] Device: HYDROLOGIC-Device-001 | Flow: 50.23 LPM | Seq: 7
+  HMAC: PASS | Timestamp: PASS | Sequence: PASS | AI: Normal (score: 0.142)
+
+# Orange — AI-flagged anomaly
+[AI ALERT] Device: HYDROLOGIC-Device-002 | Flow: 18.40 LPM | Seq: 50003
+  HMAC: PASS | Timestamp: PASS | Sequence: PASS | AI: ANOMALY (score: -0.187)
+```
 
 The anomaly injector sends five types of subtle anomalies:
 
@@ -160,6 +172,11 @@ This installs scikit-learn, joblib, and numpy.
 
 **anomaly_injector.py connection refused**
 The mTLS broker must be running with the correct certificates. Check that the Docker container is up (`docker ps`) and that the `certs/` directory contains `ca.pem`, `device-001.pem`, and `device-001-key.pem`.
+
+## How to Stop
+
+1. Press `Ctrl+C` in each terminal window to stop the Python scripts.
+2. Stop the broker: `docker stop mosquitto && docker rm mosquitto`
 
 ## Resources
 

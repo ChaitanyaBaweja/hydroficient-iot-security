@@ -43,7 +43,7 @@ Run all commands from the repository root (`hydroficient-iot-security/`). You wi
 ### Terminal 1: Start the mTLS broker
 
 ```bash
-docker run -it --rm --name mosquitto-mtls \
+docker run -it --name mosquitto \
   -p 8883:8883 \
   -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf \
   -v $(pwd)/certs:/mosquitto/config/certs \
@@ -128,6 +128,11 @@ This project depends on files from earlier projects:
 | WebSocket error in browser console | Check that port 8765 is not blocked by a firewall or another application. |
 | Browser opens but page is blank | Hard-refresh the page (Ctrl+Shift+R). Make sure `dashboard.html` is in the same directory as `dashboard_server.py`. |
 | Attack simulator says "No messages intercepted" | The publisher is not running, or the eavesdrop phase ended before any messages arrived. Start the publisher first, then run the attack simulator. |
+
+## How to Stop
+
+1. Press `Ctrl+C` in each terminal window to stop the Python scripts.
+2. Stop the broker: `docker stop mosquitto && docker rm mosquitto`
 
 ## Resources
 

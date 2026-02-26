@@ -123,11 +123,11 @@ def main():
     # ==========================================================================
     try:
         client.tls_set(
-            ca_certs=CA_CERT,
-            certfile=CLIENT_CERT,   # ADD THIS FOR mTLS
-            keyfile=CLIENT_KEY,     # ADD THIS FOR mTLS
-            cert_reqs=ssl.CERT_REQUIRED,
-            tls_version=ssl.PROTOCOL_TLS
+            ca_certs=CA_CERT,               # CA cert to verify the broker (same as Project 4)
+            certfile=CLIENT_CERT,           # NEW for mTLS: our device certificate — proves our identity to the broker
+            keyfile=CLIENT_KEY,             # NEW for mTLS: our private key — proves we own the certificate above
+            cert_reqs=ssl.CERT_REQUIRED,    # Verify the broker's cert (same as Project 4)
+            tls_version=ssl.PROTOCOL_TLS    # Negotiate highest available TLS version
         )
         print("[TLS] mTLS configured with client certificate")
     except FileNotFoundError as e:

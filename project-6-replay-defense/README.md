@@ -54,7 +54,7 @@ This shows the defended publisher and subscriber working together. All messages 
 **Terminal 1 -- Start the mTLS broker:**
 
 ```bash
-docker run -it --name mosquitto-mtls -p 8883:8883 -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
+docker run -it --name mosquitto -p 8883:8883 -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
 ```
 
 **Terminal 2 -- Start the defended subscriber:**
@@ -156,6 +156,11 @@ A standalone visualization tool that has no connection to the MQTT broker. It ge
 | All messages rejected as duplicate sequence | Each run of the publisher starts its sequence counter at 1. If the subscriber is already running and has seen higher sequence numbers from a previous publisher session, the new messages will be rejected. Restart the subscriber to reset its counters. |
 | "Certificate not found" | The `certs/` directory must contain `ca.pem`, `device-001.pem`, and `device-001-key.pem`. These are created during Projects 4-5. |
 | "Connection refused" on port 8883 | The mTLS broker must be running before the publisher, subscriber, or attacker can connect. Start it in Terminal 1 first. |
+
+## How to Stop
+
+1. Press `Ctrl+C` in each terminal window to stop the Python scripts.
+2. Stop the broker: `docker stop mosquitto && docker rm mosquitto`
 
 ## Resources
 

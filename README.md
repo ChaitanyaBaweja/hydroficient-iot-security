@@ -1,5 +1,9 @@
 # Hydroficient IoT Security Externship
 
+![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue)
+![Docker](https://img.shields.io/badge/Docker-Required-blue)
+![License: MIT](https://img.shields.io/badge/License-MIT-green)
+
 Code companion for the Hydroficient IoT Security Externship. Clone this repo to get all starter code, configuration files, certificates, notebooks, and pre-trained models for the 8-week program.
 
 The full curriculum (trainings, readings, and task instructions) lives on the Extern platform. This repo is the code side — everything you need to run the labs.
@@ -73,7 +77,7 @@ Project 8:  Sensor ──[mTLS + HMAC]──▶ Broker ──▶ Subscriber ─�
 
 2. **Clone and install:**
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/ChaitanyaBaweja/hydroficient-iot-security.git
    cd hydroficient-iot-security
    pip install -r requirements.txt
    ```
@@ -173,6 +177,10 @@ hydroficient-iot-security/
 ## Glossary
 
 New to IoT or cybersecurity? Check the [Glossary](docs/GLOSSARY.md) for plain-English definitions of MQTT, TLS, mTLS, HMAC, WebSocket, Isolation Forest, and other terms used in this program.
+
+## Security Notice
+
+The `certs/` directory contains private keys (`server-key.pem`, `device-001-key.pem`) that are **intentionally included** for learning purposes. These are self-signed certificates generated for localhost-only lab exercises. They have no value outside this repo and cannot be used to access any real system. See [certs/README.md](certs/README.md) for details.
 
 ## Running Commands
 

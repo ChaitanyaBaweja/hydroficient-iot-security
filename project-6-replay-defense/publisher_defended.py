@@ -73,13 +73,15 @@ def compute_hmac(message_dict):
 
     Returns the HMAC as a hex string.
     """
-    # Make a copy and remove hmac field
+    # Remove the hmac field before signing — we can't include the signature in the data we're signing
     msg_copy = {k: v for k, v in message_dict.items() if k != "hmac"}
 
-    # Create a consistent string representation
+    # sort_keys=True ensures both publisher and subscriber serialize fields in the same order.
+    # Without this, {"a":1,"b":2} and {"b":2,"a":1} would produce different signatures.
     msg_string = json.dumps(msg_copy, sort_keys=True)
 
-    # Compute HMAC-SHA256
+    # HMAC-SHA256: combines our shared secret with the message to produce a fixed-length signature.
+    # hexdigest() returns the signature as a hex string (e.g., "a3f2b1...") instead of raw bytes.
     signature = hmac.new(
         SHARED_SECRET.encode("utf-8"),
         msg_string.encode("utf-8"),

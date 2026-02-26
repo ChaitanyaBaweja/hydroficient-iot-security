@@ -116,11 +116,11 @@ def main():
     # ============================================
     logger.info(f"Configuring TLS with CA: {TLS_CONFIG['ca_certs']}")
     client.tls_set(
-        ca_certs=TLS_CONFIG["ca_certs"],    # Trust this CA
-        certfile=None,                       # No client cert (server-only TLS)
-        keyfile=None,                        # No client key
-        cert_reqs=ssl.CERT_REQUIRED,         # Verify server certificate
-        tls_version=ssl.PROTOCOL_TLS,        # Use modern TLS
+        ca_certs=TLS_CONFIG["ca_certs"],    # The CA cert we trust — only brokers signed by this CA are accepted
+        certfile=None,                       # No client cert (one-way TLS: we verify the broker, but it doesn't verify us)
+        keyfile=None,                        # No client key needed for one-way TLS
+        cert_reqs=ssl.CERT_REQUIRED,         # CERT_REQUIRED = refuse to connect if the broker's cert is invalid or untrusted
+        tls_version=ssl.PROTOCOL_TLS,        # Let Python negotiate the highest TLS version both sides support
     )
     # ============================================
 

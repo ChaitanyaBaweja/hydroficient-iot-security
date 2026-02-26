@@ -61,7 +61,20 @@ python project-3-insecure-mqtt/sensor_publisher.py
 
 ## What to Expect
 
-The subscriber terminal shows incoming sensor readings with upstream pressure, downstream pressure, pressure differential, and flow rate values. If any reading crosses a threshold (for example, flow rate above 60 gal/min), the dashboard prints an alert. The publisher sends a new reading every 2 seconds and logs each one with a sequential counter.
+The subscriber terminal shows incoming sensor readings. The publisher sends a new reading every 2 seconds.
+
+```bash
+# Publisher (Terminal 3)
+[1] Published: pressure_up=82.3, pressure_down=76.8, flow=41.2
+
+# Subscriber (Terminal 2)
+[RECEIVED] hydroficient/grandmarina/sensors/main-building/readings
+  Device: GM-HYDROLOGIC-01 | Counter: 1
+  Pressure (Up): 82.3 PSI | Pressure (Down): 76.8 PSI
+  Flow Rate: 41.2 gal/min | Status: NORMAL
+```
+
+If any reading crosses a threshold (for example, flow rate above 60 gal/min), the dashboard prints an alert.
 
 ## Code Overview
 
@@ -88,6 +101,11 @@ A minimal 6-line script that connects to the broker and publishes a single hardc
 | "Connection refused" | Make sure Mosquitto is running in Terminal 1. The broker must be started before the publisher or subscriber. |
 | "Address already in use" | A previous Mosquitto container is still running. Stop and remove it: `docker stop mosquitto && docker rm mosquitto` |
 | No messages appearing in subscriber | Make sure both the publisher and subscriber are using the same topic. The subscriber uses a wildcard (`#`) so it should catch anything under `hydroficient/grandmarina/`. Check that both scripts point to the same broker address and port. |
+
+## How to Stop
+
+1. Press `Ctrl+C` in each terminal window to stop the Python scripts.
+2. Stop the broker: `docker stop mosquitto && docker rm mosquitto`
 
 ## Resources
 

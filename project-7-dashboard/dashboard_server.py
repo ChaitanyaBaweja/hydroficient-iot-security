@@ -164,7 +164,14 @@ class DashboardServer:
     # Internal helpers
     # -----------------------------------------------------------------
     def _schedule_broadcast(self, message):
-        """Bridge from sync caller to async WebSocket broadcast."""
+        """Bridge from sync caller to async WebSocket broadcast.
+
+        The MQTT callback (on_message) runs in a synchronous thread, but the
+        WebSocket broadcast is an async coroutine. run_coroutine_threadsafe()
+        safely schedules the async broadcast onto the WebSocket event loop
+        from the MQTT thread — without this bridge, the two threads couldn't
+        communicate.
+        """
         if self._loop is None:
             return
         try:
