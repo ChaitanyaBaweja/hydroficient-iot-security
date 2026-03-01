@@ -13,7 +13,7 @@
 
 ## 2. What It Detected
 
-[Write 2-3 sentences describing the types of anomalies the AI caught during testing. What specific patterns did it flag? Reference the types you saw on the dashboard — pressure drift, unusual sensor combinations, etc.]
+[Write 2-3 sentences describing the types of anomalies the AI caught during testing. What specific patterns did it flag? Reference the types you saw on the dashboard — abnormal pressure, unexpected flow changes, etc.]
 
 
 ## 3. False Positive Analysis

@@ -6,11 +6,11 @@ and proper sequence numbers — but with subtly abnormal sensor readings
 that should pass all rule-based checks and trigger the AI model.
 
 Anomaly types:
-  1. Pressure drift (slow upward climb)
-  2. Flow drop (sudden low flow with normal pressure)
+  1. High pressure (obstruction downstream — 63-70 PSI)
+  2. Low pressure (supply failure — 50-57 PSI)
   3. Stuck sensor (identical readings repeated)
-  4. Correlation break (high pressure + low flow)
-  5. Extreme gate position (gate at 0% or 100% with normal flow)
+  4. Flow surge (possible leak — 56-65 LPM)
+  5. Flow drop (blockage — 33-44 LPM)
 
 Usage:
     python anomaly_injector.py
@@ -96,32 +96,30 @@ def sign_message(message_dict):
 # Anomaly Generators
 # =============================================================================
 class AnomalyGenerator:
-    """Generates different types of subtle anomalies."""
+    """Generates different types of subtle anomalies matching the training data."""
 
     def __init__(self):
-        self.drift_pressure = 59.0  # starts in normal range (58-62), will climb
         self.stuck_value = None
         self.anomaly_count = 0
 
-    def pressure_drift(self):
-        """Slow upward pressure drift — each reading slightly higher."""
-        self.drift_pressure += random.uniform(0.3, 0.8)
+    def high_pressure(self):
+        """Obstruction downstream — pressure above normal range (63-70 PSI)."""
         return {
-            "pressure_upstream": round(self.drift_pressure, 2),
-            "pressure_downstream": round(self.drift_pressure - 5.0, 2),
+            "pressure_upstream": round(random.uniform(63.0, 70.0), 2),
+            "pressure_downstream": round(random.uniform(58.0, 65.0), 2),
             "flow_rate": round(random.uniform(48.0, 55.0), 2),
-            "gate_a_position": round(random.uniform(40.0, 55.0), 2),
-            "gate_b_position": round(random.uniform(40.0, 55.0), 2),
+            "gate_a_position": round(random.uniform(42.0, 48.0), 2),
+            "gate_b_position": round(random.uniform(42.0, 48.0), 2),
         }
 
-    def flow_drop(self):
-        """Sudden low flow with normal pressure — pipe blockage pattern."""
+    def low_pressure(self):
+        """Supply failure — pressure below normal range (50-57 PSI)."""
         return {
-            "pressure_upstream": round(random.uniform(58.0, 62.0), 2),
-            "pressure_downstream": round(random.uniform(53.0, 57.0), 2),
-            "flow_rate": round(random.uniform(15.0, 25.0), 2),  # abnormally low
-            "gate_a_position": round(random.uniform(40.0, 55.0), 2),
-            "gate_b_position": round(random.uniform(40.0, 55.0), 2),
+            "pressure_upstream": round(random.uniform(50.0, 57.0), 2),
+            "pressure_downstream": round(random.uniform(45.0, 52.0), 2),
+            "flow_rate": round(random.uniform(48.0, 55.0), 2),
+            "gate_a_position": round(random.uniform(42.0, 48.0), 2),
+            "gate_b_position": round(random.uniform(42.0, 48.0), 2),
         }
 
     def stuck_sensor(self):
@@ -136,37 +134,34 @@ class AnomalyGenerator:
             }
         return dict(self.stuck_value)  # exact same values every time
 
-    def correlation_break(self):
-        """High pressure + low flow — physically unlikely combination."""
-        return {
-            "pressure_upstream": round(random.uniform(68.0, 78.0), 2),  # clearly above 58-62 normal
-            "pressure_downstream": round(random.uniform(63.0, 73.0), 2),
-            "flow_rate": round(random.uniform(20.0, 28.0), 2),  # low
-            "gate_a_position": round(random.uniform(40.0, 55.0), 2),
-            "gate_b_position": round(random.uniform(40.0, 55.0), 2),
-        }
-
-    def extreme_gate(self):
-        """Gate at extreme position with normal flow — valve issue pattern."""
+    def flow_surge(self):
+        """Possible leak — flow above normal range (56-65 LPM)."""
         return {
             "pressure_upstream": round(random.uniform(58.0, 62.0), 2),
             "pressure_downstream": round(random.uniform(53.0, 57.0), 2),
-            "flow_rate": round(random.uniform(48.0, 55.0), 2),
-            "gate_a_position": round(random.choice([2.0, 3.0, 97.0, 98.0]), 2),
-            "gate_b_position": round(random.uniform(40.0, 55.0), 2),
+            "flow_rate": round(random.uniform(56.0, 65.0), 2),
+            "gate_a_position": round(random.uniform(42.0, 48.0), 2),
+            "gate_b_position": round(random.uniform(42.0, 48.0), 2),
+        }
+
+    def flow_drop(self):
+        """Blockage — flow below normal range (33-44 LPM)."""
+        return {
+            "pressure_upstream": round(random.uniform(58.0, 62.0), 2),
+            "pressure_downstream": round(random.uniform(53.0, 57.0), 2),
+            "flow_rate": round(random.uniform(33.0, 44.0), 2),
+            "gate_a_position": round(random.uniform(42.0, 48.0), 2),
+            "gate_b_position": round(random.uniform(42.0, 48.0), 2),
         }
 
     def next_anomaly(self):
         """Cycle through anomaly types."""
         generators = [
-            ("Pressure Drift", self.pressure_drift),
-            ("Pressure Drift", self.pressure_drift),
-            ("Pressure Drift", self.pressure_drift),
+            ("High Pressure", self.high_pressure),
+            ("Low Pressure", self.low_pressure),
+            ("Stuck Sensor", self.stuck_sensor),
+            ("Flow Surge", self.flow_surge),
             ("Flow Drop", self.flow_drop),
-            ("Stuck Sensor", self.stuck_sensor),
-            ("Stuck Sensor", self.stuck_sensor),
-            ("Correlation Break", self.correlation_break),
-            ("Extreme Gate", self.extreme_gate),
         ]
         idx = self.anomaly_count % len(generators)
         self.anomaly_count += 1

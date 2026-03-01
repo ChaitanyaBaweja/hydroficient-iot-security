@@ -109,17 +109,17 @@ python project-8-ai-anomaly-detection/anomaly_injector.py
   HMAC: PASS | Timestamp: PASS | Sequence: PASS | AI: Normal (score: 0.142)
 
 # Orange — AI-flagged anomaly
-[AI ALERT] Device: HYDROLOGIC-Device-002 | Flow: 18.40 LPM | Seq: 50003
+[AI ALERT] Device: HYDROLOGIC-Device-002 | Flow: 38.50 LPM | Seq: 50003
   HMAC: PASS | Timestamp: PASS | Sequence: PASS | AI: ANOMALY (score: -0.187)
 ```
 
 The anomaly injector sends five types of subtle anomalies:
 
-1. **Pressure drift** -- Pressure readings slowly climb upward over time.
-2. **Flow drop** -- Sudden low flow while pressure stays normal, suggesting a pipe blockage.
+1. **High pressure** -- Pressure above normal range (63-70 PSI), suggesting an obstruction downstream.
+2. **Low pressure** -- Pressure below normal range (50-57 PSI), suggesting a supply failure.
 3. **Stuck sensor** -- Identical readings every time, suggesting a sensor malfunction.
-4. **Correlation break** -- High pressure paired with low flow, a physically unlikely combination.
-5. **Extreme gate position** -- Gate at 0% or 100% while flow remains normal, suggesting a valve issue.
+4. **Flow surge** -- Flow above normal range (56-65 LPM) with normal pressure, suggesting a possible leak.
+5. **Flow drop** -- Flow below normal range (33-44 LPM) with normal pressure, suggesting a blockage.
 
 ## Code Overview
 
@@ -137,7 +137,7 @@ The browser-side dashboard. It connects to the WebSocket server and displays thr
 
 ### anomaly_injector.py
 
-A test tool that simulates a second device (Device-002) sending subtly abnormal sensor readings. It connects to the mTLS broker with valid certificates and signs every message with the correct shared secret, so all rule-based checks pass. The abnormality is only in the sensor values themselves. It cycles through five anomaly patterns (pressure drift, flow drop, stuck sensor, correlation break, extreme gate position) and publishes one message every 3 seconds. The sequence counter starts at 50,000 to avoid collision with the normal publisher.
+A test tool that simulates a second device (Device-002) sending subtly abnormal sensor readings. It connects to the mTLS broker with valid certificates and signs every message with the correct shared secret, so all rule-based checks pass. The abnormality is only in the sensor values themselves. It cycles through five anomaly patterns (high pressure, low pressure, stuck sensor, flow surge, flow drop) and publishes one message every 3 seconds. The sequence counter starts at 50,000 to avoid collision with the normal publisher.
 
 ### anomaly_detection_lab.ipynb
 

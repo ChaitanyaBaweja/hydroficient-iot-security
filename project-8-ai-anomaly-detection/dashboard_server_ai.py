@@ -230,18 +230,14 @@ class DashboardServer:
     def _describe_anomaly(pressure, flow, gate):
         """Generate a human-readable description of why the AI flagged this."""
         reasons = []
-        if pressure > 65:
+        if pressure > 62:
             reasons.append(f"high pressure ({pressure:.1f} PSI)")
-        elif pressure < 55:
+        elif pressure < 58:
             reasons.append(f"low pressure ({pressure:.1f} PSI)")
-        if flow < 30:
-            reasons.append(f"low flow ({flow:.1f} LPM)")
-        elif flow > 65:
+        if flow > 55:
             reasons.append(f"high flow ({flow:.1f} LPM)")
-        if gate > 90 or gate < 10:
-            reasons.append(f"extreme gate position ({gate:.1f}%)")
-        if pressure > 62 and flow < 35:
-            reasons.append("pressure/flow mismatch")
+        elif flow < 45:
+            reasons.append(f"low flow ({flow:.1f} LPM)")
 
         if reasons:
             return "Unusual pattern: " + ", ".join(reasons)
