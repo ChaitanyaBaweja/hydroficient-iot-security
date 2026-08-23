@@ -1,0 +1,1342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Grand Marina &mdash; Every Check Passed</title>
+<style>
+  :root {
+    --bg:      #0b0f14;
+    --panel:   #111823;
+    --panel2:  #0e141d;
+    --edge:    #1e2a38;
+    --text:    #e3ebf3;
+    --muted:   #8ea0b2;
+    --green:   #3fb950;
+    --green-d: #12351d;
+    --amber:   #e3a72c;
+    --red:     #ff5c50;
+    --red-d:   #3a1113;
+    --blue:    #6cb6ff;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Courier New", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 18px;
+    overflow: hidden;
+  }
+
+  body {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    height: 100vh;
+  }
+
+  /* ---------- objective banner ---------- */
+
+  #banner {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 11px 24px;
+    background: linear-gradient(90deg, #16202d 0%, #111823 60%);
+    border-bottom: 2px solid var(--edge);
+  }
+
+  #banner .obj-tag {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    color: #0b0f14;
+    background: var(--amber);
+    padding: 6px 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  #banner .obj-text { font-size: 24px; font-weight: 650; }
+  #banner .obj-text em { color: var(--amber); font-style: normal; }
+
+  #banner .spacer { flex: 1; }
+
+  #mode-chip {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 7px 13px;
+    border-radius: 4px;
+    border: 2px solid var(--edge);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  #mode-chip.attack { border-color: var(--red); color: var(--red); background: var(--red-d); }
+
+  #clock {
+    font-family: var(--mono);
+    font-size: 29px;
+    font-weight: 700;
+    white-space: nowrap;
+    min-width: 205px;
+    text-align: right;
+  }
+
+  /* ---------- panels ---------- */
+
+  main {
+    display: grid;
+    grid-template-columns: 53fr 47fr;
+    gap: 12px;
+    padding: 12px;
+    min-height: 0;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: 8px;
+    display: grid;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  #left  { grid-template-rows: auto minmax(0, 1fr); }
+  #right { grid-template-rows: auto minmax(0, 1fr) auto auto; }
+
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 9px 18px;
+    border-bottom: 1px solid var(--edge);
+    background: var(--panel2);
+  }
+  .panel-head h2 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .panel-head .sub { font-size: 16px; color: var(--muted); }
+  #left  .panel-head h2 { color: var(--blue); }
+  #right .panel-head h2 { color: var(--green); }
+
+  canvas { display: block; width: 100%; height: 100%; }
+
+  /* ---------- security check rows ---------- */
+
+  #checks {
+    padding: 4px 18px 8px;
+    border-top: 1px solid var(--edge);
+  }
+
+  .check {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 94px;
+    align-items: center;
+    gap: 14px;
+    padding: 6px 0;
+    border-bottom: 1px solid #17212d;
+  }
+  .check:last-of-type { border-bottom: none; }
+
+  .check .cname { font-size: 19px; font-weight: 600; }
+  .check .cdet  { font-family: var(--mono); font-size: 16px; color: var(--muted); white-space: nowrap; }
+
+  .check .cbadge {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-align: center;
+    padding: 4px 0;
+    border-radius: 4px;
+    border: 2px solid var(--green);
+    color: var(--green);
+    background: var(--green-d);
+  }
+  .check.fail .cbadge { border-color: var(--red); color: var(--red); background: var(--red-d); }
+  .check.fail .cname  { color: var(--red); }
+
+  #interlock {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border: 2px dashed #2a3a4c;
+    border-radius: 6px;
+    font-size: 17px;
+    color: var(--muted);
+  }
+  #interlock b { font-family: var(--mono); font-size: 18px; white-space: nowrap; }
+  #interlock.ok        { border-color: #2f5f3a; color: var(--text); }
+  #interlock.ok b      { color: var(--green); }
+  #interlock.blocked   { border-color: var(--red); background: var(--red-d); color: var(--text); }
+  #interlock.blocked b { color: var(--red); }
+
+  /* ---------- verdict ---------- */
+
+  #verdict {
+    padding: 10px 18px 12px;
+    border-top: 2px solid var(--edge);
+    background: var(--panel2);
+    min-height: 104px;
+  }
+  #verdict .headline {
+    font-size: 27px;
+    font-weight: 850;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  #verdict .detail { margin-top: 4px; font-size: 17px; color: var(--muted); }
+  #verdict.good .headline    { color: var(--green); }
+  #verdict.bad  .headline    { color: var(--red); }
+  #verdict.bad               { background: var(--red-d); }
+  #verdict.blocked .headline { color: var(--amber); }
+
+  /* ---------- controls ---------- */
+
+  footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 11px 18px;
+    border-top: 2px solid var(--edge);
+    background: var(--panel2);
+  }
+
+  button {
+    font-family: var(--sans);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    color: var(--text);
+    background: #1b2735;
+    border: 2px solid #2c3e52;
+    border-radius: 6px;
+    padding: 10px 17px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  button:hover  { background: #24344a; border-color: #3d556f; }
+  button:active { transform: translateY(1px); }
+  button.danger        { border-color: #7a2b28; color: #ffb0a8; }
+  button.danger:hover  { background: #33191a; }
+  button.primary       { border-color: #8a6b18; color: #ffd580; }
+  button.primary:hover { background: #33280a; }
+
+  .ctrl {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 5px 12px;
+    border: 1px solid var(--edge);
+    border-radius: 6px;
+  }
+  .ctrl .lbl {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .ctrl output {
+    font-family: var(--mono);
+    font-size: 19px;
+    font-weight: 700;
+    min-width: 100px;
+    color: var(--amber);
+  }
+  .ctrl output.plain { color: var(--text); min-width: 78px; }
+
+  input[type=range] { width: 175px; accent-color: #e3a72c; height: 26px; }
+  #scrub { accent-color: #6cb6ff; width: 200px; }
+
+  .hint {
+    margin-left: auto;
+    font-size: 15px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .hint kbd {
+    font-family: var(--mono);
+    font-size: 14px;
+    border: 1px solid #33465c;
+    border-radius: 3px;
+    padding: 1px 5px;
+  }
+</style>
+</head>
+<body>
+
+<header id="banner">
+  <span class="obj-tag">OBJECTIVE</span>
+  <span class="obj-text">Get top-floor sprinkler pressure <em>under 20 PSI</em> without tripping a single alarm.</span>
+  <span class="spacer"></span>
+  <span id="mode-chip">STANDBY</span>
+  <span id="clock">MINUTE 00 / 45</span>
+</header>
+
+<main>
+  <section class="panel" id="left">
+    <div class="panel-head">
+      <h2>Physical Reality</h2>
+      <span class="sub">Grand Marina Hotel &middot; Zone A riser &middot; what is actually happening</span>
+    </div>
+    <canvas id="reality"></canvas>
+  </section>
+
+  <section class="panel" id="right">
+    <div class="panel-head">
+      <h2>What Security Sees</h2>
+      <span class="sub">HYDROLOGIC-001 telemetry &middot; validation gateway</span>
+    </div>
+    <canvas id="fence"></canvas>
+
+    <div id="checks">
+      <div class="check" id="chk-mtls">
+        <span class="cname">mTLS client certificate</span>
+        <span class="cdet" id="det-mtls">HYDROLOGIC-001 &middot; chain valid</span>
+        <span class="cbadge">PASS</span>
+      </div>
+      <div class="check" id="chk-hmac">
+        <span class="cname">HMAC-SHA256 signature</span>
+        <span class="cdet" id="det-hmac">digest matches payload</span>
+        <span class="cbadge">PASS</span>
+      </div>
+      <div class="check" id="chk-ts">
+        <span class="cname">Timestamp freshness</span>
+        <span class="cdet" id="det-ts">&Delta; 0.0 s / 30 s window</span>
+        <span class="cbadge">PASS</span>
+      </div>
+      <div class="check" id="chk-seq">
+        <span class="cname">Sequence counter</span>
+        <span class="cdet" id="det-seq">seq 40210 &middot; monotonic</span>
+        <span class="cbadge">PASS</span>
+      </div>
+      <div class="check" id="chk-ai">
+        <span class="cname">AI anomaly score (Isolation Forest)</span>
+        <span class="cdet" id="det-ai">0.000 / fence 0.000</span>
+        <span class="cbadge">PASS</span>
+      </div>
+
+      <div id="interlock" class="ok">
+        <span>Control interlock &mdash; reading forwarded to the conservation controller</span>
+        <b id="interlock-state">YES</b>
+      </div>
+    </div>
+
+    <div id="verdict">
+      <div class="headline" id="verdict-line">STANDBY &mdash; SYSTEM NOMINAL</div>
+      <div class="detail" id="verdict-detail">Gate idling at 45.0%. Alerts raised: 0.</div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <button id="btn-crude" class="danger">CRUDE ATTACK</button>
+  <button id="btn-patient" class="danger">PATIENT ATTACK</button>
+  <button id="btn-reset">RESET</button>
+  <button id="btn-pause" class="primary">PAUSE</button>
+
+  <span class="ctrl">
+    <span class="lbl">ATTACK BIAS</span>
+    <input type="range" id="bias" min="0" max="2.5" step="0.1" value="1.2">
+    <output id="bias-out">+1.2 PSI</output>
+  </span>
+
+  <span class="ctrl">
+    <span class="lbl">SCRUB</span>
+    <input type="range" id="scrub" min="0" max="45" step="1" value="0">
+    <output id="scrub-out" class="plain">min 00</output>
+  </span>
+
+  <span class="hint"><kbd>space</kbd> pause &middot; <kbd>&larr;</kbd><kbd>&rarr;</kbd> step</span>
+</footer>
+
+<!--INLINE:prng.js,model.js,iforest.js,ui.js-->
+
+<script>
+// ==== SIM-CORE-BEGIN ====
+// Pure simulation. No DOM access anywhere between the SIM-CORE markers, so the block
+// can be lifted straight out of the built page and replayed under Node by
+// tools/verify-artifact2.js. What gets verified is therefore the code that runs on
+// stage, not a re-implementation of it.
+var SIM = (function (D) {
+  'use strict';
+
+  var RUN_MINUTES  = 45;
+  var DEFAULT_BIAS = 1.2;      // mean bias of the canonical patient attack, in PSI
+  var TRAIN_N      = 1000;     // "1,000 normal readings" — the same landmark as Artifact 1
+  var TRAIN_SEED   = 1337;
+  var FOREST_SEED  = 1337;
+  var PHYSICAL_SEED = 4242;    // true upstream pressure runs on its own stream, so the
+                               // reported stream stays identical to tools/reference.py
+  var AI_QUANTILE  = 0.999;    // the fence sits at the 99.9th percentile of normal
+
+  // Seed of the *reported* telemetry stream. 1337 is the spec parameter.
+  //
+  // Note for rehearsal: this particular draw is a tail run. It crosses the 20 PSI
+  // line at minute 41 of 45 (99.3rd percentile of the model; the median is minute 31)
+  // and finishes at a 17.1% gate rather than the model's median 12.8%. Everything
+  // still holds — zero out-of-band readings, zero alerts, sprinklers impaired — but
+  // the payoff lands in the last few seconds. Call grandMarinaSetSeed(5) for a run at
+  // the model's median: crosses at minute 31, ends at 12.5% with six floors dark.
+  var ATTACK_SEED = 1337;
+
+  // ---- training set and detector -------------------------------------------------
+
+  function trainingData(n, seed) {
+    var rng = new D.Rng(seed), out = [], i, p;
+    for (i = 0; i < n; i++) {
+      p = D.normalPressure(rng);
+      out.push([p, D.reportedFlow(rng, p)]);
+    }
+    return out;
+  }
+
+  var data = trainingData(TRAIN_N, TRAIN_SEED);
+  var forest = new D.IsolationForest({ trees: 100, sampleSize: TRAIN_N, seed: FOREST_SEED }).fit(data);
+  var threshold = forest.percentileThreshold(data, AI_QUANTILE);
+
+  // ---- the attacker ---------------------------------------------------------------
+
+  // The compromised device reports a value drawn uniformly from a 1.4 PSI window
+  // centred `bias` above the 60.0 PSI setpoint. At the default bias this is exactly
+  // model.js attackPressure(): uniform[60.5, 61.9]. Never leaves 58-62 by construction.
+  function attackReading(rng, bias) {
+    if (bias === DEFAULT_BIAS) return D.attackPressure(rng);
+    var half = (D.P.ATTACK_HI - D.P.ATTACK_LO) / 2;   // 0.7 PSI
+    return D.clamp(rng.uniform(D.P.MU0 + bias - half, D.P.MU0 + bias + half), D.P.P_LO, D.P.P_HI);
+  }
+
+  function reported(mode, rng, bias) {
+    if (mode === 'crude')  return [D.P.CRUDE_PRESSURE, D.P.CRUDE_FLOW];
+    if (mode === 'normal') { var p = D.normalPressure(rng); return [p, D.reportedFlow(rng, p)]; }
+    var a = attackReading(rng, bias);
+    return [a, D.reportedFlow(rng, a)];             // flow fabricated from the *reported* pressure
+  }
+
+  function frameOf(t, rp, rf, tp, gate, accepted, checks, score, alerts, impaired) {
+    var res = D.residual(gate);
+    return {
+      t: t,
+      reportedPressure: rp, reportedFlow: rf,
+      truePressure: tp, trueFlow: D.trueFlow(gate),
+      gate: gate, residual: res, dark: D.darkFloors(res),
+      score: score, checks: checks, accepted: accepted,
+      alerts: alerts, impaired: impaired,
+      seq: 40210 + t,
+      tsDelta: 0.1 + ((t * 37) % 71) / 100          // cosmetic: message age, in seconds
+    };
+  }
+
+  var ALL_PASS = { mtls: true, hmac: true, timestamp: true, sequence: true, ai: true };
+
+  // ---- the run --------------------------------------------------------------------
+
+  function run(mode, bias) {
+    if (bias === undefined) bias = DEFAULT_BIAS;
+    var rng    = new D.Rng(ATTACK_SEED);
+    var phys   = new D.Rng(PHYSICAL_SEED);
+    var gate   = D.P.GATE0;
+    var win    = [];                       // only *accepted* readings ever enter this
+    var frames = [];
+    var alerts = 0, outOfBand = 0, impairedAt = null, blockedAt = null;
+
+    // Minute 0 is the resting state, before the first message. Both dials are already
+    // on screen — the audience watches the lie open up rather than being ambushed.
+    frames.push(frameOf(0, D.P.MU0, D.P.F_BASE, D.P.MU0, gate, true,
+                        ALL_PASS, forest.score([D.P.MU0, D.P.F_BASE]), 0, false));
+
+    for (var t = 1; t <= RUN_MINUTES; t++) {
+      var r  = reported(mode, rng, bias);
+      var rp = r[0], rf = r[1];
+      var tp = D.normalPressure(phys);     // true upstream supply: honest, and unremarkable
+
+      var score  = forest.score([rp, rf]);
+      var aiPass = score <= threshold;
+
+      // Every one of the first four is honest. The device really is Device-001, it
+      // really holds the shared secret, its clock really is right, and it really is
+      // the only publisher on the topic. Nothing here is a cheat.
+      var checks = { mtls: true, hmac: true, timestamp: true, sequence: true, ai: aiPass };
+
+      var accepted = aiPass;               // <<< THE CONTROL INTERLOCK
+
+      if (!aiPass) { alerts++; if (blockedAt === null) blockedAt = t; }
+      if (rp < D.P.P_LO || rp > D.P.P_HI) outOfBand++;
+
+      if (accepted) {
+        // A rejected reading never reaches the control loop, so the gate cannot move.
+        win.push(rp);
+        if (win.length > D.P.WINDOW) win.shift();
+        gate = D.controllerStep(gate, win);
+      }
+
+      if (impairedAt === null && D.residual(gate) <= D.P.SPRINKLER_MIN) impairedAt = t;
+
+      frames.push(frameOf(t, rp, rf, tp, gate, accepted, checks, score, alerts,
+                          impairedAt !== null));
+    }
+
+    return {
+      mode: mode, bias: bias, seed: ATTACK_SEED, frames: frames,
+      alerts: alerts, outOfBand: outOfBand,
+      impairedAt: impairedAt, blockedAt: blockedAt,
+      finalGate: gate, finalResidual: D.residual(gate),
+      finalTrueFlow: D.trueFlow(gate), finalDark: D.darkFloors(D.residual(gate))
+    };
+  }
+
+  // ---- self-check: the acceptance criteria, computed rather than eyeballed ---------
+
+  function selfCheck(bias) {
+    var crude   = run('crude');
+    var patient = run('patient', bias === undefined ? DEFAULT_BIAS : bias);
+    var live    = patient.frames.slice(1);      // minute 0 is the resting state
+    var green   = function (f) {
+      return f.checks.mtls && f.checks.hmac && f.checks.timestamp &&
+             f.checks.sequence && f.checks.ai;
+    };
+    return {
+      crudeFlagged:         crude.alerts === crude.frames.length - 1,
+      crudeGateUnmoved:     crude.finalGate === D.P.GATE0,
+      crudeFinalGate:       crude.finalGate,
+      patientAllGreen:      live.every(green),
+      patientAlerts:        patient.alerts,
+      patientOutOfBand:     patient.outOfBand,
+      patientMinReading:    Math.min.apply(null, live.map(function (f) { return f.reportedPressure; })),
+      patientMaxReading:    Math.max.apply(null, live.map(function (f) { return f.reportedPressure; })),
+      patientFinalGate:     patient.finalGate,
+      patientFinalResidual: patient.finalResidual,
+      patientImpaired:      patient.finalResidual < D.P.SPRINKLER_MIN,
+      patientImpairedAt:    patient.impairedAt,
+      patientDarkFloors:    patient.finalDark,
+      patientFinalTrueFlow: patient.finalTrueFlow,
+      seed: ATTACK_SEED,
+      threshold: threshold
+    };
+  }
+
+  return {
+    RUN_MINUTES: RUN_MINUTES, DEFAULT_BIAS: DEFAULT_BIAS,
+    data: data, forest: forest, threshold: threshold,
+    run: run, selfCheck: selfCheck, attackReading: attackReading,
+    seed: function () { return ATTACK_SEED; },
+    setSeed: function (s) { ATTACK_SEED = s; }
+  };
+})(window.Demo);
+// ==== SIM-CORE-END ====
+
+
+// ============================== presentation layer ==============================
+(function () {
+  'use strict';
+
+  var D = window.Demo;
+
+  var C = {
+    text:  '#e3ebf3', muted: '#8ea0b2', faint: '#54687c', edge: '#1e2a38',
+    green: '#3fb950', amber: '#e3a72c', red:   '#ff5c50', blue: '#6cb6ff',
+    water: '#2f86d6', lit:   '#ffd479'
+  };
+
+  var TICK_MS = 1700;        // 45 simulated minutes in ~76 s of wall clock
+  var PAD = 20;              // canvas margin
+  var HEAD = 40;             // reserved strip under every card title
+
+  var state = {
+    run: SIM.run('normal'),
+    index: 0,
+    playing: false,
+    timer: null,
+    bias: SIM.DEFAULT_BIAS
+  };
+
+  // ------------------------------------------------------------------ canvas utils
+
+  function fit(canvas) {
+    var dpr = window.devicePixelRatio || 1;
+    var r = canvas.getBoundingClientRect();
+    var w = Math.max(2, Math.round(r.width)), h = Math.max(2, Math.round(r.height));
+    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+    }
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    return { ctx: ctx, w: w, h: h };
+  }
+
+  function text(ctx, s, x, y, o) {
+    o = o || {};
+    ctx.save();
+    ctx.font = (o.weight || 600) + ' ' + (o.size || 18) + 'px ' +
+               (o.mono ? 'ui-monospace, Consolas, "Courier New", monospace'
+                       : 'ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif');
+    ctx.fillStyle = o.color || C.text;
+    ctx.textAlign = o.align || 'left';
+    ctx.textBaseline = o.baseline || 'alphabetic';
+    if (o.track) { try { ctx.letterSpacing = o.track; } catch (e) {} }
+    ctx.fillText(s, x, y);
+    ctx.restore();
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function card(ctx, x, y, w, h, title) {
+    ctx.save();
+    ctx.fillStyle = '#0d141d';
+    ctx.strokeStyle = C.edge;
+    ctx.lineWidth = 1;
+    roundRect(ctx, x, y, w, h, 8);
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+    if (title) text(ctx, title, x + 16, y + 26,
+                    { size: 17, weight: 800, color: C.muted, track: '2px' });
+  }
+
+  // ------------------------------------------------------------------ dial gauge
+
+  // A dial occupies 1.06r + 14 above its centre (the label) and 1.16r + 50 below it
+  // (value, unit, and the over-range flag). These two helpers size a dial to a
+  // vertical budget instead of guessing, which is what stops the value readout from
+  // landing on top of the 135-degree and 45-degree tick labels.
+  var DIAL_ABOVE = 1.06, DIAL_BELOW = 1.16, DIAL_PAD = 64;
+
+  function dialRadius(budget, maxR) {
+    return Math.max(40, Math.min(maxR, (budget - DIAL_PAD) / (DIAL_ABOVE + DIAL_BELOW)));
+  }
+  function dialCentre(top, r) { return top + DIAL_ABOVE * r + 14; }
+  function dialBottom(cy, r) { return cy + DIAL_BELOW * r + 50; }
+
+  // 270-degree sweep, 7:30 round to 4:30. Tick labels sit inside the arc; the value
+  // sits below the whole dial. Nothing is placed radially outside the arc, so the
+  // dial's footprint is exactly the budget above.
+  function gauge(ctx, cx, cy, r, o) {
+    var A0 = Math.PI * 0.75, SWEEP = Math.PI * 1.5;
+    var span = o.max - o.min;
+    var ang = function (v) { return A0 + SWEEP * (D.clamp(v, o.min, o.max) - o.min) / span; };
+    var i, a, v;
+
+    ctx.save();
+
+    ctx.lineWidth = r * 0.20;
+    ctx.lineCap = 'butt';
+    ctx.strokeStyle = '#18212c';
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.80, A0, A0 + SWEEP); ctx.stroke();
+
+    (o.bands || []).forEach(function (b) {
+      ctx.strokeStyle = b.color;
+      ctx.beginPath(); ctx.arc(cx, cy, r * 0.80, ang(b.from), ang(b.to)); ctx.stroke();
+    });
+
+    var tickN = o.ticks || 5;
+    for (i = 0; i <= tickN; i++) {
+      v = o.min + span * i / tickN;
+      a = ang(v);
+      ctx.strokeStyle = C.faint;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * r * 0.68, cy + Math.sin(a) * r * 0.68);
+      ctx.lineTo(cx + Math.cos(a) * r * 0.58, cy + Math.sin(a) * r * 0.58);
+      ctx.stroke();
+      text(ctx, String(Math.round(v)),
+           cx + Math.cos(a) * r * 0.46, cy + Math.sin(a) * r * 0.46 + 6,
+           { size: 18, weight: 700, color: C.muted, align: 'center', mono: true });
+    }
+
+    // threshold marker: the 20 PSI sprinkler line. Drawn, never labelled radially.
+    if (o.mark !== undefined && o.mark !== null) {
+      a = ang(o.mark);
+      ctx.strokeStyle = C.red;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * r * 0.95, cy + Math.sin(a) * r * 0.95);
+      ctx.lineTo(cx + Math.cos(a) * r * 0.60, cy + Math.sin(a) * r * 0.60);
+      ctx.stroke();
+    }
+
+    var over = o.value > o.max + 1e-9 || o.value < o.min - 1e-9;
+    var na = ang(o.value);
+    ctx.strokeStyle = over ? C.red : (o.needle || C.text);
+    ctx.lineWidth = Math.max(4, r * 0.055);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(cx - Math.cos(na) * r * 0.14, cy - Math.sin(na) * r * 0.14);
+    ctx.lineTo(cx + Math.cos(na) * r * 0.72, cy + Math.sin(na) * r * 0.72);
+    ctx.stroke();
+
+    ctx.fillStyle = over ? C.red : (o.needle || C.text);
+    ctx.beginPath(); ctx.arc(cx, cy, Math.max(6, r * 0.09), 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+
+    text(ctx, o.label, cx, cy - r * DIAL_ABOVE,
+         { size: 18, weight: 800, color: C.muted, align: 'center', track: '1.5px' });
+    text(ctx, o.valueText, cx, cy + r * DIAL_BELOW,
+         { size: Math.max(28, r * 0.42), weight: 850, color: o.valueColor || C.text,
+           align: 'center', mono: true });
+    text(ctx, o.unit || '', cx, cy + r * DIAL_BELOW + 24,
+         { size: 18, weight: 700, color: C.muted, align: 'center' });
+    if (over) text(ctx, 'OVER RANGE', cx, cy + r * DIAL_BELOW + 46,
+                   { size: 18, weight: 800, color: C.red, align: 'center' });
+  }
+
+  // ------------------------------------------------------------------ the building
+
+  function building(ctx, x, y, w, h, f) {
+    var FLOORS = D.P.FLOORS;
+    var headH = 34;
+    var by = y + headH, bh = h - headH;
+    var fh = bh / FLOORS;
+    var riserW = 16, riserX = x + w - riserW - 12;
+    var dark = f.dark;
+    var i, floorNo, fy, isDark, k;
+
+    text(ctx, 'GRAND MARINA', x, y + 14, { size: 18, weight: 800, color: C.muted, track: '2px' });
+    text(ctx, '12 floors, single riser', x, y + 31, { size: 15, weight: 600, color: C.faint });
+
+    ctx.save();
+    ctx.fillStyle = '#0c121a';
+    ctx.strokeStyle = C.edge;
+    ctx.lineWidth = 2;
+    roundRect(ctx, x, by, w, bh, 6);
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+
+    for (i = 0; i < FLOORS; i++) {
+      floorNo = FLOORS - i;                       // the top row is floor 12
+      fy = by + i * fh;
+      isDark = dark > 0 && floorNo >= FLOORS - dark + 1;
+
+      ctx.save();
+      ctx.fillStyle = isDark ? '#1a1013' : '#111a24';
+      ctx.fillRect(x + 2, fy + 1, w - 4, fh - 2);
+
+      var wins = 4, padL = 14, gapW = 9;
+      var availW = w - riserW - 40 - padL;
+      var ww = (availW - gapW * (wins - 1)) / wins;
+      var wh = Math.min(fh * 0.44, 18);
+      for (k = 0; k < wins; k++) {
+        ctx.fillStyle = isDark ? '#2a1216' : C.lit;
+        ctx.globalAlpha = isDark ? 0.85 : 0.9;
+        ctx.fillRect(x + padL + k * (ww + gapW), fy + (fh - wh) / 2, ww, wh);
+      }
+      ctx.globalAlpha = 1;
+
+      ctx.strokeStyle = '#0a0f16';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x + 2, fy); ctx.lineTo(x + w - 2, fy); ctx.stroke();
+
+      // sprinkler head, one per floor, fed off the riser
+      ctx.fillStyle = isDark ? C.red : C.blue;
+      ctx.beginPath(); ctx.arc(riserX - 11, fy + fh / 2, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+
+      text(ctx, 'F' + (floorNo < 10 ? '0' : '') + floorNo, x - 10, fy + fh / 2 + 6,
+           { size: 17, weight: 700, color: isDark ? C.red : C.faint, align: 'right', mono: true });
+    }
+
+    // the riser, filled to the current residual against the 45 PSI idle head
+    ctx.save();
+    ctx.fillStyle = '#0a1119';
+    ctx.fillRect(riserX, by + 2, riserW, bh - 4);
+    var fillH = (bh - 4) * D.clamp(f.residual / 45, 0, 1);
+    var grad = ctx.createLinearGradient(0, by + bh - 2 - fillH, 0, by + bh - 2);
+    grad.addColorStop(0, f.residual <= D.P.SPRINKLER_MIN ? C.red : C.water);
+    grad.addColorStop(1, '#123a5e');
+    ctx.fillStyle = grad;
+    ctx.fillRect(riserX, by + bh - 2 - fillH, riserW, fillH);
+    ctx.strokeStyle = C.edge;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(riserX, by + 2, riserW, bh - 4);
+    ctx.restore();
+
+    text(ctx, 'TOP FLOOR', x + 14, by + fh / 2 - 14,
+         { size: 15, weight: 800, color: dark > 0 ? C.red : C.faint, track: '1.5px' });
+
+    var msg, col;
+    if (dark === 0)     { msg = 'ALL 12 FLOORS SUPPLIED'; col = C.green; }
+    else if (dark < 12) { msg = dark + ' FLOOR' + (dark > 1 ? 'S' : '') + ' WITHOUT SUPPLY'; col = C.red; }
+    else                { msg = 'ENTIRE RISER DRY'; col = C.red; }
+    text(ctx, msg, x, y + h + 22, { size: 18, weight: 800, color: col, track: '1px' });
+  }
+
+  // ------------------------------------------------------------------ the gate valve
+
+  function valve(ctx, x, y, w, h, f) {
+    card(ctx, x, y, w, h, 'CONSERVATION GATE VALVE');
+
+    var pipeY = y + 56, pipeH = 52;
+    var pipeX = x + 20, pipeW = w * 0.44;
+    var openH = pipeH * D.clamp(f.gate / 100, 0, 1);
+
+    ctx.save();
+    ctx.fillStyle = '#0a1119';
+    ctx.fillRect(pipeX, pipeY, pipeW, pipeH);
+    ctx.fillStyle = f.residual <= D.P.SPRINKLER_MIN ? '#5d1c1c' : '#154a75';
+    ctx.fillRect(pipeX, pipeY + pipeH - openH, pipeW, openH);
+
+    // the gate plate, descending from the top of the bore
+    ctx.fillStyle = '#33465c';
+    ctx.fillRect(pipeX + pipeW * 0.42, pipeY - 22, 16, pipeH - openH + 22);
+    ctx.strokeStyle = '#4b6580';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(pipeX + pipeW * 0.42, pipeY - 22, 16, pipeH - openH + 22);
+
+    ctx.strokeStyle = C.edge;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(pipeX, pipeY, pipeW, pipeH);
+    ctx.restore();
+
+    text(ctx, f.gate.toFixed(1) + '%', pipeX + pipeW + 24, pipeY + 28,
+         { size: 42, weight: 850, color: f.gate < 20 ? C.red : C.text, mono: true });
+    text(ctx, 'OPEN', pipeX + pipeW + 24, pipeY + 52,
+         { size: 18, weight: 800, color: C.muted, track: '2px' });
+
+    // true flow against the number the device is claiming
+    var fy = y + h - 18;
+    text(ctx, 'TRUE FLOW', x + 20, fy - 26, { size: 17, weight: 800, color: C.muted, track: '1.5px' });
+    text(ctx, f.trueFlow.toFixed(1) + ' LPM', x + 20, fy,
+         { size: 25, weight: 800, color: f.trueFlow < D.P.F_LO ? C.red : C.text, mono: true });
+
+    text(ctx, 'REPORTED FLOW', x + w * 0.52, fy - 26, { size: 17, weight: 800, color: C.muted, track: '1.5px' });
+    text(ctx, f.reportedFlow.toFixed(1) + ' LPM', x + w * 0.52, fy,
+         { size: 25, weight: 800, color: C.green, mono: true });
+  }
+
+  // ------------------------------------------------------------------ left panel
+
+  function renderReality(f) {
+    var g = fit(document.getElementById('reality'));
+    var ctx = g.ctx, W = g.w, H = g.h;
+
+    var bw = Math.min(320, W * 0.34);
+    var bx = PAD + 34;                                  // room for the F01..F12 labels
+    building(ctx, bx, PAD, bw, H - PAD * 2 - 30, f);
+
+    var colX = bx + bw + 34;
+    var colW = W - colX - PAD;
+
+    // --- gate valve
+    var valveH = Math.max(168, H * 0.20);
+    valve(ctx, colX, PAD, colW, valveH, f);
+
+    // --- the lie: what is true, beside what is claimed
+    var gy = PAD + valveH + 14;
+    var gh = Math.max(200, H * 0.30);
+    card(ctx, colX, gy, colW, gh, 'PRESSURE AT THE DEVICE');
+
+    // r is also capped horizontally so the two dials cannot close the gap that the
+    // delta readout sits in
+    var gr = dialRadius(gh - HEAD, colW * 0.26 - 52);
+    var gcy = dialCentre(gy + HEAD, gr);
+    var lx = colX + colW * 0.24, rx = colX + colW * 0.76;
+
+    gauge(ctx, lx, gcy, gr, {
+      min: 55, max: 65, ticks: 2, value: f.truePressure,
+      label: 'TRUE (MEASURED)', valueText: f.truePressure.toFixed(2), unit: 'PSI',
+      needle: C.blue, valueColor: C.blue,
+      bands: [{ from: 58, to: 62, color: '#1d4a2a' }]
+    });
+
+    gauge(ctx, rx, gcy, gr, {
+      min: 55, max: 65, ticks: 2, value: f.reportedPressure,
+      label: 'REPORTED (CLAIMED)', valueText: f.reportedPressure.toFixed(2), unit: 'PSI',
+      needle: C.amber, valueColor: f.reportedPressure > 62 ? C.red : C.amber,
+      bands: [{ from: 58, to: 62, color: '#1d4a2a' }]
+    });
+
+    var mid = (lx + rx) / 2;
+    var lie = f.reportedPressure - f.truePressure;
+    text(ctx, 'THE LIE', mid, gcy - 24,
+         { size: 15, weight: 800, color: C.faint, align: 'center', track: '2px' });
+    text(ctx, (lie >= 0 ? '+' : '') + lie.toFixed(2), mid, gcy + 8,
+         { size: 24, weight: 850, align: 'center', mono: true,
+           color: Math.abs(lie) > 0.4 ? C.amber : C.muted });
+    text(ctx, 'PSI', mid, gcy + 30,
+         { size: 15, weight: 700, color: C.faint, align: 'center' });
+
+    // --- sprinkler residual, stacked vertically so nothing can crowd it
+    var sy = gy + gh + 14;
+    var sh = H - sy - PAD;
+    card(ctx, colX, sy, colW, sh, 'TOP-FLOOR SPRINKLER RESIDUAL');
+
+    var statusH = 58;
+    var sr = dialRadius(sh - HEAD - statusH, colW * 0.30);
+    var scy = dialCentre(sy + HEAD, sr);
+    var sbot = dialBottom(scy, sr);
+    var scx = colX + colW / 2;
+    var impaired = f.residual <= D.P.SPRINKLER_MIN;
+
+    gauge(ctx, scx, scy, sr, {
+      min: 0, max: 50, ticks: 5, value: f.residual,
+      label: 'RESIDUAL AT FLOOR 12', valueText: f.residual.toFixed(1), unit: 'PSI',
+      needle: impaired ? C.red : C.green, valueColor: impaired ? C.red : C.green,
+      bands: [{ from: 0, to: 20, color: '#4d1416' }, { from: 20, to: 50, color: '#1d4a2a' }],
+      mark: D.P.SPRINKLER_MIN
+    });
+
+    text(ctx, impaired ? 'BELOW MINIMUM' : 'ABOVE MINIMUM', scx, sbot + 24,
+         { size: 21, weight: 850, color: impaired ? C.red : C.green, align: 'center', track: '1px' });
+    text(ctx, impaired
+           ? 'red line is the 20 PSI sprinkler minimum'
+           : (f.residual - D.P.SPRINKLER_MIN).toFixed(1) + ' PSI above the 20 PSI minimum',
+         scx, sbot + 48, { size: 18, weight: 600, color: C.muted, align: 'center' });
+  }
+
+  // ------------------------------------------------------------------ the AI fence
+
+  var Y_DOMAIN = [42, 58];
+  var X_NORMAL = [56.5, 63.5];
+  var X_CRUDE  = [56, 90];
+  var FIELD_N  = 76;
+  var fieldCache = {};
+
+  function fieldFor(dom) {
+    var key = dom.x.join(',') + '|' + dom.y.join(',');
+    if (fieldCache[key]) return fieldCache[key];
+
+    var grid = SIM.forest.grid(dom.x, dom.y, FIELD_N);
+    var lo = Infinity, hi = -Infinity, i, j;
+    for (i = 0; i < FIELD_N; i++) for (j = 0; j < FIELD_N; j++) {
+      if (grid[i][j] < lo) lo = grid[i][j];
+      if (grid[i][j] > hi) hi = grid[i][j];
+    }
+
+    // paint the score surface into a small offscreen canvas; drawImage smooths it
+    var off = document.createElement('canvas');
+    off.width = FIELD_N; off.height = FIELD_N;
+    var octx = off.getContext('2d');
+    var img = octx.createImageData(FIELD_N, FIELD_N);
+    var d = img.data, thr = SIM.threshold, s, t, idx, px, py;
+    for (px = 0; px < FIELD_N; px++) {
+      for (py = 0; py < FIELD_N; py++) {
+        s = grid[px][FIELD_N - 1 - py];            // image row 0 is the top, i.e. max y
+        idx = (py * FIELD_N + px) * 4;
+        if (s <= thr) {
+          t = (thr - s) / Math.max(1e-9, thr - lo);
+          d[idx] = 26; d[idx + 1] = 122; d[idx + 2] = 72; d[idx + 3] = 22 + 165 * t;
+        } else {
+          t = Math.min(1, (s - thr) / Math.max(1e-9, hi - thr));
+          d[idx] = 158; d[idx + 1] = 38; d[idx + 2] = 40; d[idx + 3] = 22 + 150 * t;
+        }
+      }
+    }
+    octx.putImageData(img, 0, 0);
+
+    fieldCache[key] = { grid: grid, lo: lo, hi: hi, img: off };
+    return fieldCache[key];
+  }
+
+  // Marching squares over the score field, at the fence level.
+  function contour(grid, n, level) {
+    var segs = [], i, j, e, a, b, v, c, pts, tt;
+    function lerp(x1, y1, v1, x2, y2, v2) {
+      tt = (level - v1) / (v2 - v1);
+      return [x1 + tt * (x2 - x1), y1 + tt * (y2 - y1)];
+    }
+    for (i = 0; i < n - 1; i++) {
+      for (j = 0; j < n - 1; j++) {
+        v = [grid[i][j], grid[i + 1][j], grid[i + 1][j + 1], grid[i][j + 1]];
+        c = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]];
+        pts = [];
+        for (e = 0; e < 4; e++) {
+          a = e; b = (e + 1) % 4;
+          if ((v[a] < level) !== (v[b] < level)) {
+            pts.push(lerp(c[a][0], c[a][1], v[a], c[b][0], c[b][1], v[b]));
+          }
+        }
+        if (pts.length === 2) segs.push(pts);
+        else if (pts.length === 4) { segs.push([pts[0], pts[1]]); segs.push([pts[2], pts[3]]); }
+      }
+    }
+    return segs;
+  }
+
+  function niceTicks(domain, approx) {
+    var span = domain[1] - domain[0];
+    var raw = span / approx;
+    var mag = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
+    var norm = raw / mag;
+    var step = (norm < 1.5 ? 1 : norm < 3 ? 2 : norm < 7 ? 5 : 10) * mag;
+    var out = [];
+    for (var v = Math.ceil(domain[0] / step) * step; v <= domain[1] + 1e-9; v += step) {
+      out.push(Math.round(v * 1e6) / 1e6);
+    }
+    return out;
+  }
+
+  function renderFence(f) {
+    var g = fit(document.getElementById('fence'));
+    var ctx = g.ctx, W = g.w, H = g.h;
+    var crude = state.run.mode === 'crude';
+    var dom = { x: crude ? X_CRUDE : X_NORMAL, y: Y_DOMAIN };
+
+    var legendW = 296;
+    var box = {
+      x: 78, y: 24,
+      w: Math.max(200, W - legendW - 110),
+      h: Math.max(160, H - 100)
+    };
+    var fld = fieldFor(dom);
+
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(fld.img, box.x, box.y, box.w, box.h);
+    ctx.restore();
+
+    var sx = D.scaler(dom.x, [box.x, box.x + box.w]);
+    var sy = D.scaler(dom.y, [box.y + box.h, box.y]);
+
+    ctx.save();
+    ctx.strokeStyle = C.edge; ctx.lineWidth = 1;
+    niceTicks(dom.x, 5).forEach(function (v) {
+      var p = sx(v);
+      ctx.beginPath(); ctx.moveTo(p, box.y); ctx.lineTo(p, box.y + box.h); ctx.stroke();
+      text(ctx, String(v), p, box.y + box.h + 26,
+           { size: 18, weight: 700, color: C.muted, align: 'center', mono: true });
+    });
+    niceTicks(dom.y, 4).forEach(function (v) {
+      var p = sy(v);
+      ctx.beginPath(); ctx.moveTo(box.x, p); ctx.lineTo(box.x + box.w, p); ctx.stroke();
+      text(ctx, String(v), box.x - 11, p + 6,
+           { size: 18, weight: 700, color: C.muted, align: 'right', mono: true });
+    });
+    ctx.strokeStyle = '#33465c'; ctx.lineWidth = 2;
+    ctx.strokeRect(box.x, box.y, box.w, box.h);
+    ctx.restore();
+
+    text(ctx, 'REPORTED PRESSURE (PSI)', box.x + box.w / 2, box.y + box.h + 52,
+         { size: 18, weight: 800, color: C.muted, align: 'center', track: '1.5px' });
+    ctx.save();
+    ctx.translate(box.x - 52, box.y + box.h / 2);
+    ctx.rotate(-Math.PI / 2);
+    text(ctx, 'REPORTED FLOW (LPM)', 0, 0,
+         { size: 18, weight: 800, color: C.muted, align: 'center', track: '1.5px' });
+    ctx.restore();
+
+    // the 1,000 normal readings the model was fitted on
+    D.scatter(ctx, box, SIM.data, dom.x, dom.y, 'rgba(150,170,190,0.42)', crude ? 1.5 : 2.2);
+
+    // the fence
+    ctx.save();
+    ctx.strokeStyle = '#8fd3ff';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.shadowColor = 'rgba(143,211,255,0.75)';
+    ctx.shadowBlur = 8;
+    var fx = function (i) { return box.x + (i / (FIELD_N - 1)) * box.w; };
+    var fy = function (j) { return box.y + box.h - (j / (FIELD_N - 1)) * box.h; };
+    ctx.beginPath();
+    contour(fld.grid, FIELD_N, SIM.threshold).forEach(function (s) {
+      ctx.moveTo(fx(s[0][0]), fy(s[0][1]));
+      ctx.lineTo(fx(s[1][0]), fy(s[1][1]));
+    });
+    ctx.stroke();
+    ctx.restore();
+
+    // trail of the readings so far
+    var frames = state.run.frames, trail = [], i;
+    for (i = Math.max(1, state.index - 14); i <= state.index; i++) {
+      trail.push([frames[i].reportedPressure, frames[i].reportedFlow]);
+    }
+    if (trail.length > 1) {
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      D.polyline(ctx, box, trail, dom.x, dom.y, C.amber, 2);
+      ctx.restore();
+      D.scatter(ctx, box, trail.slice(0, -1), dom.x, dom.y, 'rgba(227,167,44,0.55)', 4);
+    }
+
+    // the live reading
+    var px = sx(D.clamp(f.reportedPressure, dom.x[0], dom.x[1]));
+    var py = sy(D.clamp(f.reportedFlow, dom.y[0], dom.y[1]));
+    var ok = f.checks.ai;
+    ctx.save();
+    ctx.shadowColor = ok ? 'rgba(63,185,80,0.85)' : 'rgba(255,92,80,0.9)';
+    ctx.shadowBlur = 20;
+    ctx.fillStyle = ok ? C.green : C.red;
+    ctx.beginPath(); ctx.arc(px, py, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(px, py, 12, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+
+    var tag = f.reportedPressure.toFixed(1) + ' / ' + f.reportedFlow.toFixed(1);
+    text(ctx, tag, px + (px > box.x + box.w * 0.75 ? -20 : 20), py - 15,
+         { size: 18, weight: 800, color: ok ? C.green : C.red, mono: true,
+           align: px > box.x + box.w * 0.75 ? 'right' : 'left' });
+
+    // legend
+    var lgx = box.x + box.w + 34, ly = box.y + 18;
+    function key(colour, label, detail, shape) {
+      ctx.save();
+      ctx.fillStyle = colour;
+      if (shape === 'line') ctx.fillRect(lgx, ly - 7, 24, 4);
+      else { ctx.beginPath(); ctx.arc(lgx + 9, ly - 5, 7, 0, Math.PI * 2); ctx.fill(); }
+      ctx.restore();
+      text(ctx, label, lgx + 34, ly, { size: 18, weight: 700 });
+      text(ctx, detail, lgx + 34, ly + 21, { size: 16, weight: 600, color: C.muted });
+      ly += 56;
+    }
+    key('rgba(150,170,190,0.75)', 'Normal readings', '1,000 samples, unlabelled');
+    key('#8fd3ff', 'AI decision fence', '99.9th pct of normal', 'line');
+    key(ok ? C.green : C.red, 'Live reported reading', 'minute ' + f.t);
+
+    ly += 10;
+    text(ctx, 'ANOMALY SCORE', lgx, ly, { size: 17, weight: 800, color: C.muted, track: '1.5px' });
+    text(ctx, f.score.toFixed(3), lgx, ly + 38,
+         { size: 34, weight: 850, mono: true, color: ok ? C.green : C.red });
+    text(ctx, 'fence at ' + SIM.threshold.toFixed(3), lgx, ly + 62,
+         { size: 17, weight: 600, color: C.muted, mono: true });
+    if (crude) text(ctx, 'x-axis rescaled to fit 85 PSI', lgx, ly + 98,
+                    { size: 17, weight: 700, color: C.amber });
+  }
+
+  // ------------------------------------------------------------------ DOM readouts
+
+  var CHECK_IDS = { mtls: 'chk-mtls', hmac: 'chk-hmac', timestamp: 'chk-ts',
+                    sequence: 'chk-seq', ai: 'chk-ai' };
+
+  function renderReadouts(f) {
+    var run = state.run, mode = run.mode;
+    var last = state.index >= run.frames.length - 1;
+
+    document.getElementById('clock').textContent =
+      'MINUTE ' + (f.t < 10 ? '0' : '') + f.t + ' / ' + SIM.RUN_MINUTES;
+
+    var chip = document.getElementById('mode-chip');
+    chip.className = '';
+    if (mode === 'crude') {
+      chip.textContent = 'CRUDE ATTACK';
+      chip.classList.add('attack');
+    } else if (mode === 'patient') {
+      chip.textContent = 'PATIENT ATTACK, BIAS +' + run.bias.toFixed(1) + ' PSI';
+      chip.classList.add('attack');
+    } else {
+      chip.textContent = 'STANDBY, NORMAL OPERATION';
+    }
+
+    Object.keys(CHECK_IDS).forEach(function (k) {
+      var el = document.getElementById(CHECK_IDS[k]);
+      el.classList.toggle('fail', !f.checks[k]);
+      el.querySelector('.cbadge').textContent = f.checks[k] ? 'PASS' : 'FAIL';
+    });
+
+    document.getElementById('det-ts').textContent  = 'Δ ' + f.tsDelta.toFixed(1) + ' s / 30 s window';
+    document.getElementById('det-seq').textContent = 'seq ' + f.seq + ' · monotonic';
+    document.getElementById('det-ai').textContent  = f.score.toFixed(3) + ' / fence ' + SIM.threshold.toFixed(3);
+
+    var il = document.getElementById('interlock');
+    il.className = f.accepted ? 'ok' : 'blocked';
+    document.getElementById('interlock-state').textContent = f.accepted ? 'YES' : 'NO — REJECTED';
+
+    var v = document.getElementById('verdict');
+    var line = document.getElementById('verdict-line');
+    var detail = document.getElementById('verdict-detail');
+    v.className = '';
+
+    if (mode === 'crude' && f.t > 0) {
+      v.classList.add('blocked');
+      line.textContent = 'ATTACK BLOCKED';
+      detail.textContent = 'Reported 85.0 PSI scored ' + f.score.toFixed(3) + ' against a fence of ' +
+        SIM.threshold.toFixed(3) + '. The reading was rejected at the gateway and never reached the ' +
+        'controller, so the gate is unmoved at ' + f.gate.toFixed(1) + '%. Alerts raised: ' + f.alerts + '.';
+    } else if (mode === 'patient' && f.impaired) {
+      v.classList.add('bad');
+      line.textContent = last
+        ? 'SPRINKLER SYSTEM IMPAIRED — ' + run.alerts + ' alerts raised.'
+        : 'SPRINKLER SYSTEM IMPAIRED';
+      detail.textContent = 'Residual ' + f.residual.toFixed(1) + ' PSI at floor 12, under the 20 PSI ' +
+        'minimum. ' + f.dark + ' floors without supply, true flow ' + f.trueFlow.toFixed(1) +
+        ' LPM against a normal band of 45-55. Every check still passing. Alerts raised: ' + f.alerts + '.';
+    } else if (mode === 'patient') {
+      v.classList.add('good');
+      line.textContent = 'ALL CHECKS PASS — NO ACTION TAKEN';
+      detail.textContent = 'Reported ' + f.reportedPressure.toFixed(2) + ' PSI, inside the 58-62 band. ' +
+        'Gate at ' + f.gate.toFixed(1) + '%, residual ' + f.residual.toFixed(1) +
+        ' PSI. Alerts raised: ' + f.alerts + '.';
+    } else {
+      line.textContent = 'STANDBY — SYSTEM NOMINAL';
+      detail.textContent = 'Gate idling at ' + f.gate.toFixed(1) + '%, residual ' +
+        f.residual.toFixed(1) + ' PSI. Alerts raised: ' + f.alerts + '.';
+    }
+
+    document.getElementById('scrub').value = String(state.index);
+    document.getElementById('scrub-out').textContent = 'min ' + (f.t < 10 ? '0' : '') + f.t;
+  }
+
+  // Readouts first: they are the only thing that can change a row height, and the
+  // canvases must be measured after the layout has settled.
+  function render() {
+    var f = state.run.frames[state.index];
+    renderReadouts(f);
+    renderReality(f);
+    renderFence(f);
+  }
+
+  // ------------------------------------------------------------------ playback
+
+  function stop() {
+    if (state.timer !== null) { clearInterval(state.timer); state.timer = null; }
+    state.playing = false;
+    document.getElementById('btn-pause').textContent = 'PLAY';
+  }
+
+  function play() {
+    if (state.playing) return;
+    if (state.index >= state.run.frames.length - 1) state.index = 0;
+    state.playing = true;
+    document.getElementById('btn-pause').textContent = 'PAUSE';
+    state.timer = setInterval(function () {
+      if (state.index >= state.run.frames.length - 1) { stop(); render(); return; }
+      state.index += 1;
+      render();
+    }, TICK_MS);
+  }
+
+  function logRun(run) {
+    var name = run.mode === 'crude' ? 'CRUDE ATTACK'
+             : run.mode === 'patient' ? 'PATIENT ATTACK (bias +' + run.bias.toFixed(1) + ' PSI)'
+             : 'NORMAL OPERATION';
+    console.log('%c-- ' + name + ' -- seed ' + run.seed, 'font-weight:bold;font-size:14px');
+    run.frames.slice(1).forEach(function (f) {
+      console.log(
+        'min ' + (f.t < 10 ? '0' : '') + f.t +
+        '  reported ' + f.reportedPressure.toFixed(3) + ' PSI' +
+        '  flow ' + f.reportedFlow.toFixed(2) + ' LPM' +
+        '  in-band ' + (f.reportedPressure >= 58 && f.reportedPressure <= 62 ? 'YES' : 'NO ') +
+        '  score ' + f.score.toFixed(4) +
+        '  AI ' + (f.checks.ai ? 'PASS' : 'FAIL') +
+        '  forwarded ' + (f.accepted ? 'YES' : 'NO ') +
+        '  gate ' + f.gate.toFixed(2) + '%' +
+        '  residual ' + f.residual.toFixed(2) + ' PSI' +
+        '  dark ' + f.dark);
+    });
+    console.log('  readings outside 58-62 : ' + run.outOfBand + '   (expected 0 on normal and patient runs)');
+    console.log('  alerts raised          : ' + run.alerts);
+    console.log('  final gate             : ' + run.finalGate.toFixed(2) + '%');
+    console.log('  final residual         : ' + run.finalResidual.toFixed(2) + ' PSI' +
+                (run.finalResidual < 20 ? '   <-- BELOW THE 20 PSI SPRINKLER MINIMUM' : ''));
+    console.log('  final true flow        : ' + run.finalTrueFlow.toFixed(2) + ' LPM (normal band 45-55)');
+  }
+
+  function load(mode, bias, autoplay) {
+    stop();
+    if (bias !== undefined) state.bias = bias;
+    state.run = SIM.run(mode, state.bias);
+    state.index = 0;
+    logRun(state.run);
+    render();
+    if (autoplay) play();
+  }
+
+  // ------------------------------------------------------------------ controls
+
+  document.getElementById('btn-crude').addEventListener('click', function () {
+    load('crude', state.bias, true);
+  });
+
+  document.getElementById('btn-patient').addEventListener('click', function () {
+    // Always the canonical attack: uniform[60.5, 61.9] via model.js attackPressure().
+    document.getElementById('bias').value = String(SIM.DEFAULT_BIAS);
+    document.getElementById('bias-out').textContent = '+1.2 PSI';
+    load('patient', SIM.DEFAULT_BIAS, true);
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', function () {
+    load('normal', state.bias, false);
+  });
+
+  document.getElementById('btn-pause').addEventListener('click', function () {
+    if (state.playing) stop(); else play();
+  });
+
+  document.getElementById('bias').addEventListener('input', function (e) {
+    var b = parseFloat(e.target.value);
+    document.getElementById('bias-out').textContent = '+' + b.toFixed(1) + ' PSI';
+    state.bias = b;
+  });
+
+  // Re-run on release rather than on every drag frame.
+  ['change', 'pointerup', 'keyup'].forEach(function (ev) {
+    document.getElementById('bias').addEventListener(ev, function () {
+      load('patient', state.bias, false);
+    });
+  });
+
+  document.getElementById('scrub').addEventListener('input', function (e) {
+    stop();
+    state.index = Math.max(0, Math.min(state.run.frames.length - 1, parseInt(e.target.value, 10)));
+    render();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.target && e.target.tagName === 'INPUT' && e.key !== ' ') return;
+    if (e.key === ' ') {
+      e.preventDefault();
+      if (state.playing) stop(); else play();
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault(); stop();
+      state.index = Math.min(state.run.frames.length - 1, state.index + 1); render();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault(); stop();
+      state.index = Math.max(0, state.index - 1); render();
+    }
+  });
+
+  window.addEventListener('resize', render);
+
+  // ------------------------------------------------------------------ boot
+
+  document.getElementById('scrub').max = String(SIM.RUN_MINUTES);
+
+  // Exposed so the acceptance criteria can be re-checked from the console on stage.
+  window.grandMarinaSelfCheck = function () {
+    var r = SIM.selfCheck(state.bias);
+    console.table(r);
+    return r;
+  };
+
+  // Exposed so the telemetry stream can be reseeded during rehearsal. See the note on
+  // ATTACK_SEED above: 1337 is a tail draw and crosses 20 PSI late in the run.
+  window.grandMarinaSetSeed = function (s) {
+    SIM.setSeed(s);
+    load(state.run.mode, state.bias, false);
+    return s;
+  };
+
+  stop();
+  logRun(state.run);
+  render();
+  console.log('AI fence (99.9th percentile of 1,000 normal readings): ' + SIM.threshold.toFixed(5));
+  console.log('grandMarinaSelfCheck() verifies the acceptance criteria.');
+  console.log('grandMarinaSetSeed(5) reseeds the telemetry stream to a median run ' +
+              '(crosses 20 PSI near minute 31 instead of minute 41).');
+})();
+</script>
+</body>
+</html>
