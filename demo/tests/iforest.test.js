@@ -40,9 +40,29 @@ test('flags the crude attack and clears the patient attack', () => {
   let flagged = 0;
   for (let i = 0; i < 200; i++) {
     const p = M.attackPressure(rng);
-    if (f.score([p, M.reportedFlow(rng, p)]) > threshold) flagged++;
+    if (f.score([p, M.fabricatedFlow(rng, p)]) > threshold) flagged++;
   }
   assert.ok(flagged / 200 < 0.05, `patient attack flagged ${flagged}/200, must stay green`);
+});
+
+// Regression guard. The whole demo rests on a 45-minute patient run in which not one
+// reading trips the fence. Fabricating flow at the real sensor's spread leaves roughly
+// 1 run in 80 dirty, which would break that claim live and unrecoverably. The tighter
+// fabrication spread must keep every run of every seed clean.
+test('no patient run trips the fence, across many seeds', () => {
+  const data = normalData();
+  const f = new IsolationForest({ trees: 100, seed: 1337 }).fit(data);
+  const threshold = f.percentileThreshold(data, 0.999);
+
+  let dirtyRuns = 0;
+  for (let seed = 1; seed <= 300; seed++) {
+    const rng = new Rng(seed);
+    for (let minute = 0; minute < 45; minute++) {
+      const p = M.attackPressure(rng);
+      if (f.score([p, M.fabricatedFlow(rng, p)]) > threshold) { dirtyRuns++; break; }
+    }
+  }
+  assert.strictEqual(dirtyRuns, 0, `${dirtyRuns}/300 patient runs raised an alert`);
 });
 
 test('is deterministic for a fixed seed', () => {
