@@ -14,6 +14,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 from datetime import datetime, timedelta, timezone
+import ipaddress
 import os
 
 # Configuration
@@ -156,7 +157,7 @@ def generate_server_certificate(ca_cert, ca_key):
         .add_extension(
             x509.SubjectAlternativeName([
                 x509.DNSName("localhost"),
-                x509.DNSName("127.0.0.1"),
+                x509.IPAddress(ipaddress.IPv4Address("127.0.0.1")),
             ]),
             critical=False,
         )
@@ -287,7 +288,8 @@ def main():
     os.makedirs(CERTS_DIR, exist_ok=True)
 
     # Check if CA exists, generate if missing
-    if not os.path.exists(CA_CERT_FILE) or not os.path.exists(CA_KEY_FILE):
+    new_ca = not os.path.exists(CA_CERT_FILE) or not os.path.exists(CA_KEY_FILE)
+    if new_ca:
         print("\nCA files not found. Generating new Certificate Authority...")
         ca_cert, ca_key = generate_ca()
     else:
@@ -295,9 +297,10 @@ def main():
         ca_cert, ca_key = load_ca()
     print(f"  CA: {ca_cert.subject.rfc4514_string()}")
 
-    # Check if server certificate exists, generate if missing
-    if not os.path.exists(SERVER_CERT_FILE) or not os.path.exists(SERVER_KEY_FILE):
-        print("\nServer certificate not found. Generating...")
+    # A new CA can't vouch for a server cert the old CA signed, so the
+    # server cert must be re-issued too, or every connection fails to verify
+    if new_ca or not os.path.exists(SERVER_CERT_FILE) or not os.path.exists(SERVER_KEY_FILE):
+        print("\nGenerating server certificate (signed by this CA)...")
         generate_server_certificate(ca_cert, ca_key)
     else:
         print(f"\n  Server certificate exists: {SERVER_CERT_FILE}")
@@ -327,9 +330,9 @@ def main():
         print(f"      Private key: certs/device-{device_id}-key.pem")
 
     print("\nNext steps:")
-    print("  1. Start Mosquitto: mosquitto -c mosquitto_mtls.conf -v")
-    print("  2. Run subscriber: python subscriber_mtls.py")
-    print("  3. Run publisher: python publisher_mtls.py")
+    print("  1. Start Mosquitto with configs/mosquitto_mtls.conf (see project-5-mtls/README.md)")
+    print("  2. Run subscriber: python project-5-mtls/subscriber_mtls.py")
+    print("  3. Run publisher: python project-5-mtls/publisher_mtls.py")
 
 
 if __name__ == "__main__":

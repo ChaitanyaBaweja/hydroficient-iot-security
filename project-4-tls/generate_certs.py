@@ -138,7 +138,7 @@ def generate_server_certificate(ca_key, ca_cert):
     return server_key, server_cert
 
 
-def save_certificates(ca_cert, server_cert, server_key, output_dir="certs"):
+def save_certificates(ca_key, ca_cert, server_cert, server_key, output_dir="certs"):
     """Save all certificates and keys to files"""
     # Create output directory
     output_path = Path(output_dir)
@@ -149,6 +149,17 @@ def save_certificates(ca_cert, server_cert, server_key, output_dir="certs"):
     with open(ca_path, "wb") as f:
         f.write(ca_cert.public_bytes(serialization.Encoding.PEM))
     print(f"      Saved: {ca_path}")
+
+    # Save CA private key - Project 5 needs it to sign device certificates
+    # with this same CA. Without it, Project 5 has to start a brand new CA.
+    ca_key_path = output_path / "ca-key.pem"
+    with open(ca_key_path, "wb") as f:
+        f.write(ca_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption()
+        ))
+    print(f"      Saved: {ca_key_path}")
 
     # Save server certificate
     server_cert_path = output_path / "server.pem"
@@ -210,7 +221,7 @@ def main():
 
     # Step 3: Save all files
     print_step(3, 3, "Saving certificates to certs/ folder...")
-    ca_path, server_path, key_path = save_certificates(ca_cert, server_cert, server_key)
+    ca_path, server_path, key_path = save_certificates(ca_key, ca_cert, server_cert, server_key)
 
     # Verify
     verify_certificates(ca_path, server_path)
@@ -220,6 +231,7 @@ def main():
     print("=" * 55)
     print("\nFiles created:")
     print("  certs/ca.pem         - CA certificate (share with clients)")
+    print("  certs/ca-key.pem     - CA private key (signs device certs in Project 5)")
     print("  certs/server.pem     - Server certificate (for Mosquitto)")
     print("  certs/server-key.pem - Server private key (keep secret!)")
     print("\nNext: Update mosquitto_tls.conf with these paths and restart Mosquitto")
