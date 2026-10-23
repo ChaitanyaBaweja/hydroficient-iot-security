@@ -64,7 +64,7 @@ Run all commands from the **repo root directory** (`hydroficient-iot-security/`)
 **Terminal 1 -- Start the mTLS broker:**
 
 ```bash
-docker run -it --name mosquitto -p 8883:8883 -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
+docker run -it --name mosquitto -p 127.0.0.1:8883:8883 -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
 ```
 
 > **Windows note:** Replace `$(pwd)` with `%cd%` (Command Prompt) or `${PWD}` (PowerShell).

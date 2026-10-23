@@ -130,7 +130,7 @@ A smoke test is a quick check to confirm your setup is working. You will run thr
 Open a terminal window and run:
 
 ```bash
-docker run -it --name mosquitto -p 1883:1883 -v $(pwd)/configs/mosquitto_insecure.conf:/mosquitto/config/mosquitto.conf eclipse-mosquitto
+docker run -it --name mosquitto -p 127.0.0.1:1883:1883 -v $(pwd)/configs/mosquitto_insecure.conf:/mosquitto/config/mosquitto.conf eclipse-mosquitto
 ```
 
 > **Windows users:** If you are using Command Prompt instead of Git Bash or WSL, replace `$(pwd)` with the full path to your project folder, for example:

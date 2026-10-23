@@ -17,19 +17,19 @@ Run these commands from the repo root.
 **Insecure (Project 3):**
 
 ```bash
-docker run -it --name mosquitto -p 1883:1883 -v $(pwd)/configs/mosquitto_insecure.conf:/mosquitto/config/mosquitto.conf eclipse-mosquitto
+docker run -it --name mosquitto -p 127.0.0.1:1883:1883 -v $(pwd)/configs/mosquitto_insecure.conf:/mosquitto/config/mosquitto.conf eclipse-mosquitto
 ```
 
 **TLS (Project 4):**
 
 ```bash
-docker run -it --name mosquitto -p 8883:8883 -v $(pwd)/configs/mosquitto_tls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
+docker run -it --name mosquitto -p 127.0.0.1:8883:8883 -v $(pwd)/configs/mosquitto_tls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
 ```
 
 **mTLS (Projects 5-8):**
 
 ```bash
-docker run -it --name mosquitto -p 8883:8883 -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
+docker run -it --name mosquitto -p 127.0.0.1:8883:8883 -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
 ```
 
 **Windows users:** Replace `$(pwd)` with `%cd%` in Command Prompt or `${PWD}` in PowerShell.

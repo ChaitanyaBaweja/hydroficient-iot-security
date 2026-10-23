@@ -42,7 +42,7 @@ Run all commands from the repository root. You need three separate terminal wind
 **Terminal 1 — Start the insecure Mosquitto broker:**
 
 ```bash
-docker run -it --name mosquitto -p 1883:1883 -v $(pwd)/configs/mosquitto_insecure.conf:/mosquitto/config/mosquitto.conf eclipse-mosquitto
+docker run -it --name mosquitto -p 127.0.0.1:1883:1883 -v $(pwd)/configs/mosquitto_insecure.conf:/mosquitto/config/mosquitto.conf eclipse-mosquitto
 ```
 
 **Terminal 2 — Start the subscriber (dashboard):**

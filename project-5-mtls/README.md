@@ -57,7 +57,7 @@ If CA and server certificates already exist, the script reuses them and only gen
 ### Step 2: Start the Mosquitto broker with mTLS (Terminal 1)
 
 ```bash
-docker run -it --name mosquitto -p 8883:8883 -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
+docker run -it --name mosquitto -p 127.0.0.1:8883:8883 -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf -v $(pwd)/certs:/mosquitto/config/certs eclipse-mosquitto
 ```
 
 **Windows users:** Replace `$(pwd)` with `%cd%` (Command Prompt) or `${PWD}` (PowerShell).

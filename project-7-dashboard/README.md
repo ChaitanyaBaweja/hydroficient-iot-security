@@ -44,7 +44,7 @@ Run all commands from the repository root (`hydroficient-iot-security/`). You wi
 
 ```bash
 docker run -it --name mosquitto \
-  -p 8883:8883 \
+  -p 127.0.0.1:8883:8883 \
   -v $(pwd)/configs/mosquitto_mtls.conf:/mosquitto/config/mosquitto.conf \
   -v $(pwd)/certs:/mosquitto/config/certs \
   eclipse-mosquitto
