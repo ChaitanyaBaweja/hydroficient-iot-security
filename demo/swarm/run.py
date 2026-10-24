@@ -29,7 +29,8 @@ def main():
     args = ap.parse_args()
 
     schedule = None if args.no_schedule else coordinated_schedule()
-    server = SwarmServer(engine=Engine(schedule=schedule), speed=args.speed)
+    server = SwarmServer(engine=Engine(schedule=schedule, with_checks=True),
+                         speed=args.speed)
 
     if not args.no_open:
         webbrowser.open(f"http://127.0.0.1:{HTTP_PORT}/fleet_view.html")

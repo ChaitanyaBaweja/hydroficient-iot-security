@@ -31,7 +31,7 @@ def _serve_http():
 
 class SwarmServer:
     def __init__(self, engine=None, speed=1.0, tick_s=0.2):
-        self.engine = engine or Engine()
+        self.engine = engine or Engine(with_checks=True)
         self.speed = speed          # simulated seconds per real second
         self.tick_s = tick_s        # real seconds between pushes
         self.clients = set()

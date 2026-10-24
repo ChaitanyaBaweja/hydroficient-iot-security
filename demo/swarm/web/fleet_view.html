@@ -21,80 +21,88 @@
   body {
     background: var(--bg); color: var(--fg); font-family: var(--sans);
     display: flex; flex-direction: column; overflow: hidden;
-    font-size: clamp(12px, 1.1vw, 16px);
+    font-size: clamp(11px, 1vw, 15px);
   }
-  /* Header strip */
   header {
     display: flex; align-items: center; gap: 1.2em;
-    padding: 0.7em 1.2em; border-bottom: 1px solid var(--line);
-    background: var(--panel);
+    padding: 0.6em 1.1em; border-bottom: 1px solid var(--line); background: var(--panel);
   }
   header .brand { font-weight: 600; letter-spacing: .02em; }
   header .brand small { color: var(--dim); font-weight: 400; margin-left: .5em; }
   header .spacer { flex: 1; }
   .pill {
-    font-family: var(--mono); font-size: .9em; padding: .3em .8em;
-    border-radius: 3px; border: 1px solid var(--ok-dim); color: var(--ok);
-    letter-spacing: .04em; text-transform: uppercase;
+    font-family: var(--mono); font-size: .9em; padding: .3em .8em; border-radius: 3px;
+    border: 1px solid var(--ok-dim); color: var(--ok); letter-spacing: .04em; text-transform: uppercase;
   }
   .pill.alarm { color: #fff; background: var(--crit); border-color: var(--crit);
     animation: blink 1s steps(2) infinite; }
   @keyframes blink { 50% { opacity: .55; } }
   .clock { font-family: var(--mono); color: var(--dim); }
+  .conn { font-family: var(--mono); font-size: .8em; color: var(--warn); }
 
   main {
-    flex: 1; display: grid; gap: 10px; padding: 10px;
-    grid-template-columns: 3fr 1.4fr; grid-template-rows: 1fr auto;
-    min-height: 0;
+    flex: 1; display: grid; gap: 9px; padding: 9px;
+    grid-template-columns: 3fr 1.5fr; grid-template-rows: 1fr 1fr; min-height: 0;
   }
   .panel {
     background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
-    padding: 10px 12px; min-height: 0; display: flex; flex-direction: column;
+    padding: 9px 11px; min-height: 0; display: flex; flex-direction: column;
   }
   .panel h2 {
-    font-size: .72em; text-transform: uppercase; letter-spacing: .08em;
-    color: var(--dim); font-weight: 600; margin-bottom: 8px;
+    font-size: .7em; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--dim); font-weight: 600; margin-bottom: 7px;
   }
-  /* Fleet grid */
   #grid-panel { grid-row: 1 / span 2; }
   .grid {
-    flex: 1; display: grid; gap: 5px; min-height: 0;
+    flex: 1; display: grid; gap: 4px; min-height: 0;
     grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(8, 1fr);
   }
   .tile {
     border: 1px solid var(--line); border-radius: 3px; background: #11301f;
-    display: flex; flex-direction: column; justify-content: center;
-    align-items: center; font-family: var(--mono); line-height: 1.15;
-    color: var(--fg); overflow: hidden; transition: background .3s, outline-color .3s;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    font-family: var(--mono); line-height: 1.1; overflow: hidden; transition: background .3s;
   }
-  .tile .id { font-size: .72em; color: var(--dim); }
-  .tile .psi { font-size: 1.05em; font-variant-numeric: tabular-nums; }
-  .tile .deg { font-size: .68em; color: var(--dim); }
+  .tile .id { font-size: .68em; color: var(--dim); }
+  .tile .psi { font-size: 1em; font-variant-numeric: tabular-nums; }
+  .tile .deg { font-size: .64em; color: var(--dim); }
   .tile.watched { outline: 2px solid var(--accent); outline-offset: -2px; }
   .tile.low { background: #3a1413; }
   .tile.low .psi { color: var(--crit); }
   .tile.flag { outline: 2px solid var(--warn); outline-offset: -2px; }
-  .legend { display: flex; gap: 1.2em; margin-top: 8px; font-size: .72em; color: var(--dim); }
-  .legend span::before {
-    content: ""; display: inline-block; width: .8em; height: .8em;
-    margin-right: .4em; vertical-align: -1px; border-radius: 2px;
-  }
+  .legend { display: flex; gap: 1.1em; margin-top: 7px; font-size: .7em; color: var(--dim); flex-wrap: wrap; }
+  .legend span::before { content: ""; display: inline-block; width: .8em; height: .8em;
+    margin-right: .35em; vertical-align: -1px; border-radius: 2px; }
   .lg-ok::before { background: #11301f; border: 1px solid var(--ok-dim); }
   .lg-low::before { background: #3a1413; border: 1px solid var(--crit); }
   .lg-flag::before { background: transparent; outline: 2px solid var(--warn); }
 
-  /* Detector + pressure */
   .stat { display: flex; justify-content: space-between; align-items: baseline;
-    font-family: var(--mono); padding: 4px 0; border-bottom: 1px solid var(--line); }
-  .stat .k { color: var(--dim); font-size: .85em; }
-  .stat .v { font-size: 1.15em; font-variant-numeric: tabular-nums; }
-  .bar { height: 7px; background: var(--line); border-radius: 4px; margin-top: 6px; overflow: hidden; }
+    font-family: var(--mono); padding: 3px 0; border-bottom: 1px solid var(--line); }
+  .stat .k { color: var(--dim); font-size: .82em; } .stat .v { font-size: 1.1em; font-variant-numeric: tabular-nums; }
+  .bar { height: 6px; background: var(--line); border-radius: 4px; margin-top: 5px; overflow: hidden; }
   .bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s; }
   .bar.hot > i { background: var(--crit); }
-  .verdict { margin-top: auto; padding-top: 10px; font-size: .9em; color: var(--dim); }
+  .verdict { margin-top: auto; padding-top: 8px; font-size: .85em; color: var(--dim); }
   .verdict.alarm { color: var(--crit); font-weight: 600; }
-  #spark { width: 100%; flex: 1; min-height: 60px; }
-  .conn { font-family: var(--mono); font-size: .8em; color: var(--warn); }
+
+  /* Bottom strip: packet decode + per-device checks + pressure */
+  .strip { display: flex; gap: 9px; padding: 0 9px 9px; height: 30vh; min-height: 170px; }
+  .strip .panel { margin: 0; }
+  #packet-panel { flex: 2.3; }
+  #checks-panel { flex: 1; }
+  #pressure-panel { flex: 1.3; }
+  .hexline { font-family: var(--mono); font-size: .78em; color: var(--accent);
+    word-break: break-all; line-height: 1.5; margin-bottom: 6px; }
+  .fields { flex: 1; overflow: auto; font-family: var(--mono); font-size: .76em; }
+  .fields div { display: grid; grid-template-columns: 1.5fr 1.3fr 2.2fr; gap: 8px;
+    padding: 2px 0; border-bottom: 1px solid var(--line); }
+  .fields .fl { color: var(--dim); } .fields .fh { color: var(--accent); }
+  .fields .fv { color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wire { margin-top: 6px; font-size: .8em; color: var(--dim); }
+  .check { display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); padding: 4px 0; border-bottom: 1px solid var(--line); font-size: .9em; }
+  .check .mark { font-weight: 700; } .check .pass { color: var(--ok); } .check .fail { color: var(--crit); }
+  #spark { width: 100%; flex: 1; min-height: 50px; }
 </style>
 </head>
 <body>
@@ -114,7 +122,7 @@
     <div class="legend">
       <span class="lg-ok">normal</span>
       <span class="lg-low">below 20 psi</span>
-      <span class="lg-flag">flagged by detector</span>
+      <span class="lg-flag">flagged by fleet detector</span>
     </div>
   </section>
 
@@ -128,18 +136,35 @@
   </section>
 
   <section class="panel">
-    <h2>Fleet pressure &middot; median &amp; buildings under 20 psi</h2>
-    <svg id="spark" preserveAspectRatio="none"></svg>
-    <div class="stat"><span class="k">Median downstream</span><span class="v" id="median">&ndash;</span></div>
-    <div class="stat"><span class="k">Buildings under 20 psi</span><span class="v" id="under">0</span></div>
+    <h2>Per-device checks &middot; <span id="chk-device" style="color:var(--accent)">device 001</span></h2>
+    <div id="checks"></div>
+    <div class="verdict" id="chk-note">On one device, nothing looks wrong.</div>
   </section>
 </main>
+
+<div class="strip">
+  <section class="panel" id="packet-panel">
+    <h2>MQTT publish &middot; decoded</h2>
+    <div class="hexline" id="hex">&ndash;</div>
+    <div class="fields" id="fields"></div>
+    <div class="wire" id="wire"></div>
+  </section>
+  <section class="panel" id="checks-panel">
+    <h2>What the checks see</h2>
+    <div id="checks2"></div>
+  </section>
+  <section class="panel" id="pressure-panel">
+    <h2>Fleet pressure</h2>
+    <svg id="spark" preserveAspectRatio="none"></svg>
+    <div class="stat"><span class="k">Median</span><span class="v" id="median">&ndash;</span></div>
+    <div class="stat"><span class="k">Under 20 psi</span><span class="v" id="under">0</span></div>
+  </section>
+</div>
 
 <script>
 const NS = "http://www.w3.org/2000/svg";
 let lowPsi = 20;
 
-// Build the 80 tiles once.
 const grid = document.getElementById("grid");
 const tiles = [];
 for (let i = 0; i < 80; i++) {
@@ -151,6 +176,11 @@ for (let i = 0; i < 80; i++) {
   tiles.push(t);
 }
 
+const CHECK_LABELS = {
+  cert: "Certificate identity", hmac: "HMAC integrity", timestamp: "Fresh timestamp",
+  sequence: "Sequence in order", if_normal: "Isolation Forest",
+};
+
 function fmtClock(t) {
   const m = Math.floor(t / 60), s = Math.floor(t % 60);
   return `T+${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
@@ -159,7 +189,6 @@ function fmtClock(t) {
 function render(st) {
   lowPsi = st.low_psi;
   document.getElementById("clock").textContent = fmtClock(st.t);
-
   const alarm = st.status === "alarm";
   const pill = document.getElementById("status");
   pill.textContent = alarm ? "ALARM · coordinated change" : "Systems nominal";
@@ -170,7 +199,6 @@ function render(st) {
     t.querySelector(".psi").textContent = r.downstream.toFixed(0);
     t.querySelector(".deg").textContent = r.gate_a.toFixed(0) + "°";
     t.classList.toggle("low", r.downstream < lowPsi);
-    // "Flagged" styling only once the detector is firing, and only on moved units.
     t.classList.toggle("flag", alarm && r.affected);
   }
 
@@ -184,8 +212,8 @@ function render(st) {
   const v = document.getElementById("verdict");
   v.classList.toggle("alarm", alarm);
   v.textContent = alarm
-    ? "Many buildings are closing their gates together — invisible on any single device."
-    : (st.detector_enabled ? "Watching the whole fleet at once." : "Detector off — nothing is watching the pattern.");
+    ? "Many buildings closing their gates together — invisible on any single device."
+    : (st.detector_enabled ? "Watching the whole fleet at once." : "Detector off — nothing watches the pattern.");
 
   const last = st.pressure[st.pressure.length - 1];
   if (last) {
@@ -193,19 +221,58 @@ function render(st) {
     document.getElementById("under").textContent = last.under;
   }
   drawSpark(st.pressure);
+  renderPacket(st.packet, alarm);
+}
+
+function renderChecks(checks, elId) {
+  const el = document.getElementById(elId);
+  el.innerHTML = "";
+  for (const key of Object.keys(CHECK_LABELS)) {
+    const ok = checks[key];
+    const row = document.createElement("div");
+    row.className = "check";
+    row.innerHTML = `<span>${CHECK_LABELS[key]}</span>`
+      + `<span class="mark ${ok ? "pass" : "fail"}">${ok ? "✓ pass" : "✗ fail"}</span>`;
+    el.appendChild(row);
+  }
+}
+
+function renderPacket(pkt, alarm) {
+  if (!pkt) return;
+  document.getElementById("chk-device").textContent = "device " + pkt.device_id.slice(-3);
+  document.getElementById("hex").textContent = pkt.hex;
+  const fe = document.getElementById("fields");
+  fe.innerHTML = "";
+  for (const f of pkt.fields) {
+    const row = document.createElement("div");
+    row.innerHTML = `<span class="fl">${f.label}</span><span class="fh">${f.hex}</span>`
+      + `<span class="fv">${f.value.replace(/</g, "&lt;")}</span>`;
+    fe.appendChild(row);
+  }
+  document.getElementById("wire").textContent =
+    `On the wire under TLS 1.3: ${pkt.wire_bytes} bytes, contents encrypted `
+    + `(payload ${pkt.payload_bytes} bytes). An observer sees size and timing only.`;
+  if (pkt.checks) {
+    renderChecks(pkt.checks, "checks");
+    renderChecks(pkt.checks, "checks2");
+    const allPass = Object.values(pkt.checks).every(Boolean);
+    const note = document.getElementById("chk-note");
+    note.textContent = allPass
+      ? "Every check passes. On this one device, nothing looks wrong."
+      : "A check failed on this device.";
+    note.classList.toggle("alarm", !allPass);
+  }
 }
 
 function drawSpark(hist) {
   const svg = document.getElementById("spark");
-  const w = svg.clientWidth || 300, h = svg.clientHeight || 80;
+  const w = svg.clientWidth || 300, h = svg.clientHeight || 70;
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
   while (svg.firstChild) svg.removeChild(svg.firstChild);
   if (hist.length < 2) return;
   const pad = 4, maxP = 80, minP = 0;
   const x = i => pad + (i / (hist.length - 1)) * (w - 2 * pad);
   const y = p => h - pad - ((p - minP) / (maxP - minP)) * (h - 2 * pad);
-
-  // 20 psi reference line.
   const ref = document.createElementNS(NS, "line");
   ref.setAttribute("x1", pad); ref.setAttribute("x2", w - pad);
   ref.setAttribute("y1", y(lowPsi)); ref.setAttribute("y2", y(lowPsi));
@@ -215,8 +282,7 @@ function drawSpark(hist) {
   lbl.setAttribute("x", pad + 2); lbl.setAttribute("y", y(lowPsi) - 3);
   lbl.setAttribute("fill", "#e5534b"); lbl.setAttribute("font-size", "9");
   lbl.setAttribute("font-family", "monospace");
-  lbl.textContent = "20 psi — EPA loss-of-pressure line"; svg.appendChild(lbl);
-
+  lbl.textContent = "20 psi"; svg.appendChild(lbl);
   const path = document.createElementNS(NS, "path");
   let dstr = "";
   hist.forEach((p, i) => { dstr += (i ? "L" : "M") + x(i).toFixed(1) + " " + y(p.median).toFixed(1); });
@@ -227,10 +293,9 @@ function drawSpark(hist) {
 
 // Sample frame so this page renders without a server (shared preview). The live
 // demo overwrites it the instant the WebSocket delivers real state.
-const SAMPLE = {"t":480.0,"status":"alarm","fleet":[{"idx":0,"device_id":"HYDROLOGIC-Device-001","building":"grand-marina","downstream":61.7,"gate_a":51.1,"affected":false},{"idx":1,"device_id":"HYDROLOGIC-Device-002","building":"harbor-view-tower","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":2,"device_id":"HYDROLOGIC-Device-003","building":"lakeside-plaza","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":3,"device_id":"HYDROLOGIC-Device-004","building":"cedar-court","downstream":58.8,"gate_a":14.2,"affected":true},{"idx":4,"device_id":"HYDROLOGIC-Device-005","building":"the-fairmont-west","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":5,"device_id":"HYDROLOGIC-Device-006","building":"university-commons","downstream":0.0,"gate_a":14.2,"affected":true},{"idx":6,"device_id":"HYDROLOGIC-Device-007","building":"maple-ridge-hotel","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":7,"device_id":"HYDROLOGIC-Device-008","building":"riverside-conference","downstream":54.3,"gate_a":15.9,"affected":true},{"idx":8,"device_id":"HYDROLOGIC-Device-009","building":"oakwood-residences","downstream":66.1,"gate_a":15.8,"affected":true},{"idx":9,"device_id":"HYDROLOGIC-Device-010","building":"summit-medical-center","downstream":61.2,"gate_a":14.3,"affected":true},{"idx":10,"device_id":"HYDROLOGIC-Device-011","building":"bayfront-suites","downstream":16.3,"gate_a":19.2,"affected":true},{"idx":11,"device_id":"HYDROLOGIC-Device-012","building":"pinewood-mall","downstream":0.1,"gate_a":14.0,"affected":true},{"idx":12,"device_id":"HYDROLOGIC-Device-013","building":"the-ellison-hotel","downstream":51.7,"gate_a":13.8,"affected":true},{"idx":13,"device_id":"HYDROLOGIC-Device-014","building":"crossroads-outlet","downstream":60.3,"gate_a":27.4,"affected":true},{"idx":14,"device_id":"HYDROLOGIC-Device-015","building":"stonegate-apartments","downstream":21.4,"gate_a":21.6,"affected":true},{"idx":15,"device_id":"HYDROLOGIC-Device-016","building":"willow-creek-resort","downstream":29.5,"gate_a":24.4,"affected":true},{"idx":16,"device_id":"HYDROLOGIC-Device-017","building":"metro-aquatics-center","downstream":69.3,"gate_a":26.8,"affected":true},{"idx":17,"device_id":"HYDROLOGIC-Device-018","building":"northside-hospital","downstream":61.9,"gate_a":32.2,"affected":true},{"idx":18,"device_id":"HYDROLOGIC-Device-019","building":"the-brixton","downstream":73.5,"gate_a":30.3,"affected":true},{"idx":19,"device_id":"HYDROLOGIC-Device-020","building":"parkview-towers","downstream":52.9,"gate_a":27.8,"affected":true},{"idx":20,"device_id":"HYDROLOGIC-Device-021","building":"grand-marina-2","downstream":57.9,"gate_a":35.2,"affected":true},{"idx":21,"device_id":"HYDROLOGIC-Device-022","building":"harbor-view-tower-2","downstream":49.8,"gate_a":38.1,"affected":true},{"idx":22,"device_id":"HYDROLOGIC-Device-023","building":"lakeside-plaza-2","downstream":44.4,"gate_a":30.3,"affected":true},{"idx":23,"device_id":"HYDROLOGIC-Device-024","building":"cedar-court-2","downstream":70.1,"gate_a":44.0,"affected":true},{"idx":24,"device_id":"HYDROLOGIC-Device-025","building":"the-fairmont-west-2","downstream":60.4,"gate_a":45.1,"affected":true},{"idx":25,"device_id":"HYDROLOGIC-Device-026","building":"university-commons-2","downstream":72.1,"gate_a":43.4,"affected":true},{"idx":26,"device_id":"HYDROLOGIC-Device-027","building":"maple-ridge-hotel-2","downstream":56.1,"gate_a":47.0,"affected":true},{"idx":27,"device_id":"HYDROLOGIC-Device-028","building":"riverside-conference-2","downstream":67.4,"gate_a":39.8,"affected":true},{"idx":28,"device_id":"HYDROLOGIC-Device-029","building":"oakwood-residences-2","downstream":66.3,"gate_a":46.4,"affected":true},{"idx":29,"device_id":"HYDROLOGIC-Device-030","building":"summit-medical-center-2","downstream":72.9,"gate_a":45.9,"affected":false},{"idx":30,"device_id":"HYDROLOGIC-Device-031","building":"bayfront-suites-2","downstream":67.4,"gate_a":47.0,"affected":false},{"idx":31,"device_id":"HYDROLOGIC-Device-032","building":"pinewood-mall-2","downstream":73.2,"gate_a":49.4,"affected":false},{"idx":32,"device_id":"HYDROLOGIC-Device-033","building":"the-ellison-hotel-2","downstream":71.4,"gate_a":47.4,"affected":false},{"idx":33,"device_id":"HYDROLOGIC-Device-034","building":"crossroads-outlet-2","downstream":73.2,"gate_a":46.3,"affected":false},{"idx":34,"device_id":"HYDROLOGIC-Device-035","building":"stonegate-apartments-2","downstream":71.0,"gate_a":49.9,"affected":false},{"idx":35,"device_id":"HYDROLOGIC-Device-036","building":"willow-creek-resort-2","downstream":61.0,"gate_a":46.8,"affected":false},{"idx":36,"device_id":"HYDROLOGIC-Device-037","building":"metro-aquatics-center-2","downstream":60.2,"gate_a":41.4,"affected":false},{"idx":37,"device_id":"HYDROLOGIC-Device-038","building":"northside-hospital-2","downstream":64.8,"gate_a":51.9,"affected":false},{"idx":38,"device_id":"HYDROLOGIC-Device-039","building":"the-brixton-2","downstream":61.3,"gate_a":47.8,"affected":false},{"idx":39,"device_id":"HYDROLOGIC-Device-040","building":"parkview-towers-2","downstream":54.1,"gate_a":40.8,"affected":false},{"idx":40,"device_id":"HYDROLOGIC-Device-041","building":"grand-marina-3","downstream":68.8,"gate_a":45.0,"affected":false},{"idx":41,"device_id":"HYDROLOGIC-Device-042","building":"harbor-view-tower-3","downstream":64.8,"gate_a":44.9,"affected":false},{"idx":42,"device_id":"HYDROLOGIC-Device-043","building":"lakeside-plaza-3","downstream":75.8,"gate_a":44.0,"affected":false},{"idx":43,"device_id":"HYDROLOGIC-Device-044","building":"cedar-court-3","downstream":67.3,"gate_a":41.4,"affected":false},{"idx":44,"device_id":"HYDROLOGIC-Device-045","building":"the-fairmont-west-3","downstream":61.3,"gate_a":49.8,"affected":false},{"idx":45,"device_id":"HYDROLOGIC-Device-046","building":"university-commons-3","downstream":75.3,"gate_a":48.2,"affected":false},{"idx":46,"device_id":"HYDROLOGIC-Device-047","building":"maple-ridge-hotel-3","downstream":63.3,"gate_a":54.9,"affected":false},{"idx":47,"device_id":"HYDROLOGIC-Device-048","building":"riverside-conference-3","downstream":59.2,"gate_a":45.0,"affected":false},{"idx":48,"device_id":"HYDROLOGIC-Device-049","building":"oakwood-residences-3","downstream":66.4,"gate_a":55.5,"affected":false},{"idx":49,"device_id":"HYDROLOGIC-Device-050","building":"summit-medical-center-3","downstream":67.5,"gate_a":47.6,"affected":false},{"idx":50,"device_id":"HYDROLOGIC-Device-051","building":"bayfront-suites-3","downstream":68.4,"gate_a":50.2,"affected":false},{"idx":51,"device_id":"HYDROLOGIC-Device-052","building":"pinewood-mall-3","downstream":73.0,"gate_a":46.7,"affected":false},{"idx":52,"device_id":"HYDROLOGIC-Device-053","building":"the-ellison-hotel-3","downstream":72.6,"gate_a":52.6,"affected":false},{"idx":53,"device_id":"HYDROLOGIC-Device-054","building":"crossroads-outlet-3","downstream":65.6,"gate_a":44.5,"affected":false},{"idx":54,"device_id":"HYDROLOGIC-Device-055","building":"stonegate-apartments-3","downstream":72.4,"gate_a":41.7,"affected":false},{"idx":55,"device_id":"HYDROLOGIC-Device-056","building":"willow-creek-resort-3","downstream":64.1,"gate_a":45.6,"affected":false},{"idx":56,"device_id":"HYDROLOGIC-Device-057","building":"metro-aquatics-center-3","downstream":70.5,"gate_a":51.1,"affected":false},{"idx":57,"device_id":"HYDROLOGIC-Device-058","building":"northside-hospital-3","downstream":69.6,"gate_a":54.4,"affected":false},{"idx":58,"device_id":"HYDROLOGIC-Device-059","building":"the-brixton-3","downstream":68.8,"gate_a":52.5,"affected":false},{"idx":59,"device_id":"HYDROLOGIC-Device-060","building":"parkview-towers-3","downstream":61.3,"gate_a":44.0,"affected":false},{"idx":60,"device_id":"HYDROLOGIC-Device-061","building":"grand-marina-4","downstream":72.3,"gate_a":54.8,"affected":false},{"idx":61,"device_id":"HYDROLOGIC-Device-062","building":"harbor-view-tower-4","downstream":68.6,"gate_a":51.8,"affected":false},{"idx":62,"device_id":"HYDROLOGIC-Device-063","building":"lakeside-plaza-4","downstream":68.0,"gate_a":51.4,"affected":false},{"idx":63,"device_id":"HYDROLOGIC-Device-064","building":"cedar-court-4","downstream":67.1,"gate_a":40.3,"affected":false},{"idx":64,"device_id":"HYDROLOGIC-Device-065","building":"the-fairmont-west-4","downstream":58.8,"gate_a":43.8,"affected":false},{"idx":65,"device_id":"HYDROLOGIC-Device-066","building":"university-commons-4","downstream":73.0,"gate_a":40.7,"affected":false},{"idx":66,"device_id":"HYDROLOGIC-Device-067","building":"maple-ridge-hotel-4","downstream":62.6,"gate_a":43.6,"affected":false},{"idx":67,"device_id":"HYDROLOGIC-Device-068","building":"riverside-conference-4","downstream":63.0,"gate_a":52.2,"affected":false},{"idx":68,"device_id":"HYDROLOGIC-Device-069","building":"oakwood-residences-4","downstream":62.3,"gate_a":50.5,"affected":false},{"idx":69,"device_id":"HYDROLOGIC-Device-070","building":"summit-medical-center-4","downstream":60.8,"gate_a":48.6,"affected":false},{"idx":70,"device_id":"HYDROLOGIC-Device-071","building":"bayfront-suites-4","downstream":66.2,"gate_a":52.3,"affected":false},{"idx":71,"device_id":"HYDROLOGIC-Device-072","building":"pinewood-mall-4","downstream":57.1,"gate_a":43.2,"affected":false},{"idx":72,"device_id":"HYDROLOGIC-Device-073","building":"the-ellison-hotel-4","downstream":60.0,"gate_a":54.7,"affected":false},{"idx":73,"device_id":"HYDROLOGIC-Device-074","building":"crossroads-outlet-4","downstream":66.8,"gate_a":41.1,"affected":false},{"idx":74,"device_id":"HYDROLOGIC-Device-075","building":"stonegate-apartments-4","downstream":63.9,"gate_a":48.4,"affected":false},{"idx":75,"device_id":"HYDROLOGIC-Device-076","building":"willow-creek-resort-4","downstream":72.7,"gate_a":51.3,"affected":false},{"idx":76,"device_id":"HYDROLOGIC-Device-077","building":"metro-aquatics-center-4","downstream":64.6,"gate_a":51.1,"affected":false},{"idx":77,"device_id":"HYDROLOGIC-Device-078","building":"northside-hospital-4","downstream":64.0,"gate_a":47.0,"affected":false},{"idx":78,"device_id":"HYDROLOGIC-Device-079","building":"the-brixton-4","downstream":61.1,"gate_a":49.2,"affected":false},{"idx":79,"device_id":"HYDROLOGIC-Device-080","building":"parkview-towers-4","downstream":63.9,"gate_a":54.3,"affected":false}],"detector":{"lockstep":24,"cusum":2.69,"firing":true},"detector_enabled":true,"pressure":[{"t":5.0,"median":66.1,"under":0},{"t":20.0,"median":66.3,"under":0},{"t":35.0,"median":66.4,"under":0},{"t":50.0,"median":66.5,"under":0},{"t":65.0,"median":66.6,"under":0},{"t":80.0,"median":66.7,"under":0},{"t":95.0,"median":66.6,"under":0},{"t":110.0,"median":66.4,"under":0},{"t":125.0,"median":66.4,"under":0},{"t":140.0,"median":66.5,"under":0},{"t":155.0,"median":66.6,"under":0},{"t":170.0,"median":66.7,"under":0},{"t":185.0,"median":66.7,"under":0},{"t":200.0,"median":67.0,"under":0},{"t":215.0,"median":66.6,"under":0},{"t":230.0,"median":66.3,"under":0},{"t":245.0,"median":66.3,"under":0},{"t":260.0,"median":66.4,"under":0},{"t":275.0,"median":66.2,"under":0},{"t":290.0,"median":66.1,"under":0},{"t":305.0,"median":66.0,"under":0},{"t":320.0,"median":66.0,"under":0},{"t":335.0,"median":66.2,"under":0},{"t":350.0,"median":66.3,"under":0},{"t":365.0,"median":66.3,"under":0},{"t":380.0,"median":66.0,"under":0},{"t":395.0,"median":66.1,"under":0},{"t":410.0,"median":66.2,"under":0},{"t":425.0,"median":65.9,"under":0},{"t":440.0,"median":65.9,"under":0},{"t":455.0,"median":65.6,"under":1},{"t":470.0,"median":64.9,"under":4}],"low_psi":20.0,"n_affected":28};
+const SAMPLE = /*SAMPLE*/{"t":475.0,"status":"alarm","fleet":[{"idx":0,"device_id":"HYDROLOGIC-Device-001","building":"grand-marina","downstream":61.5,"gate_a":50.5,"affected":false},{"idx":1,"device_id":"HYDROLOGIC-Device-002","building":"harbor-view-tower","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":2,"device_id":"HYDROLOGIC-Device-003","building":"lakeside-plaza","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":3,"device_id":"HYDROLOGIC-Device-004","building":"cedar-court","downstream":64.0,"gate_a":17.2,"affected":true},{"idx":4,"device_id":"HYDROLOGIC-Device-005","building":"the-fairmont-west","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":5,"device_id":"HYDROLOGIC-Device-006","building":"university-commons","downstream":8.0,"gate_a":17.2,"affected":true},{"idx":6,"device_id":"HYDROLOGIC-Device-007","building":"maple-ridge-hotel","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":7,"device_id":"HYDROLOGIC-Device-008","building":"riverside-conference","downstream":58.6,"gate_a":18.9,"affected":true},{"idx":8,"device_id":"HYDROLOGIC-Device-009","building":"oakwood-residences","downstream":69.8,"gate_a":18.8,"affected":true},{"idx":9,"device_id":"HYDROLOGIC-Device-010","building":"summit-medical-center","downstream":66.7,"gate_a":17.3,"affected":true},{"idx":10,"device_id":"HYDROLOGIC-Device-011","building":"bayfront-suites","downstream":29.7,"gate_a":22.2,"affected":true},{"idx":11,"device_id":"HYDROLOGIC-Device-012","building":"pinewood-mall","downstream":24.6,"gate_a":17.0,"affected":true},{"idx":12,"device_id":"HYDROLOGIC-Device-013","building":"the-ellison-hotel","downstream":57.7,"gate_a":16.8,"affected":true},{"idx":13,"device_id":"HYDROLOGIC-Device-014","building":"crossroads-outlet","downstream":63.4,"gate_a":30.4,"affected":true},{"idx":14,"device_id":"HYDROLOGIC-Device-015","building":"stonegate-apartments","downstream":30.8,"gate_a":24.6,"affected":true},{"idx":15,"device_id":"HYDROLOGIC-Device-016","building":"willow-creek-resort","downstream":36.9,"gate_a":27.4,"affected":true},{"idx":16,"device_id":"HYDROLOGIC-Device-017","building":"metro-aquatics-center","downstream":70.2,"gate_a":29.8,"affected":true},{"idx":17,"device_id":"HYDROLOGIC-Device-018","building":"northside-hospital","downstream":63.8,"gate_a":35.2,"affected":true},{"idx":18,"device_id":"HYDROLOGIC-Device-019","building":"the-brixton","downstream":74.4,"gate_a":33.3,"affected":true},{"idx":19,"device_id":"HYDROLOGIC-Device-020","building":"parkview-towers","downstream":57.1,"gate_a":30.8,"affected":true},{"idx":20,"device_id":"HYDROLOGIC-Device-021","building":"grand-marina-2","downstream":60.4,"gate_a":38.2,"affected":true},{"idx":21,"device_id":"HYDROLOGIC-Device-022","building":"harbor-view-tower-2","downstream":51.7,"gate_a":41.1,"affected":true},{"idx":22,"device_id":"HYDROLOGIC-Device-023","building":"lakeside-plaza-2","downstream":48.4,"gate_a":33.3,"affected":true},{"idx":23,"device_id":"HYDROLOGIC-Device-024","building":"cedar-court-2","downstream":70.3,"gate_a":47.0,"affected":true},{"idx":24,"device_id":"HYDROLOGIC-Device-025","building":"the-fairmont-west-2","downstream":61.5,"gate_a":48.1,"affected":true},{"idx":25,"device_id":"HYDROLOGIC-Device-026","building":"university-commons-2","downstream":72.3,"gate_a":46.4,"affected":true},{"idx":26,"device_id":"HYDROLOGIC-Device-027","building":"maple-ridge-hotel-2","downstream":57.0,"gate_a":50.0,"affected":true},{"idx":27,"device_id":"HYDROLOGIC-Device-028","building":"riverside-conference-2","downstream":67.9,"gate_a":42.6,"affected":false},{"idx":28,"device_id":"HYDROLOGIC-Device-029","building":"oakwood-residences-2","downstream":65.9,"gate_a":48.6,"affected":false},{"idx":29,"device_id":"HYDROLOGIC-Device-030","building":"summit-medical-center-2","downstream":72.9,"gate_a":45.4,"affected":false},{"idx":30,"device_id":"HYDROLOGIC-Device-031","building":"bayfront-suites-2","downstream":67.4,"gate_a":47.7,"affected":false},{"idx":31,"device_id":"HYDROLOGIC-Device-032","building":"pinewood-mall-2","downstream":73.1,"gate_a":49.3,"affected":false},{"idx":32,"device_id":"HYDROLOGIC-Device-033","building":"the-ellison-hotel-2","downstream":71.3,"gate_a":46.4,"affected":false},{"idx":33,"device_id":"HYDROLOGIC-Device-034","building":"crossroads-outlet-2","downstream":73.3,"gate_a":46.3,"affected":false},{"idx":34,"device_id":"HYDROLOGIC-Device-035","building":"stonegate-apartments-2","downstream":70.9,"gate_a":49.9,"affected":false},{"idx":35,"device_id":"HYDROLOGIC-Device-036","building":"willow-creek-resort-2","downstream":61.3,"gate_a":47.7,"affected":false},{"idx":36,"device_id":"HYDROLOGIC-Device-037","building":"metro-aquatics-center-2","downstream":60.2,"gate_a":41.4,"affected":false},{"idx":37,"device_id":"HYDROLOGIC-Device-038","building":"northside-hospital-2","downstream":64.6,"gate_a":51.8,"affected":false},{"idx":38,"device_id":"HYDROLOGIC-Device-039","building":"the-brixton-2","downstream":61.4,"gate_a":47.8,"affected":false},{"idx":39,"device_id":"HYDROLOGIC-Device-040","building":"parkview-towers-2","downstream":54.0,"gate_a":40.8,"affected":false},{"idx":40,"device_id":"HYDROLOGIC-Device-041","building":"grand-marina-3","downstream":68.7,"gate_a":45.0,"affected":false},{"idx":41,"device_id":"HYDROLOGIC-Device-042","building":"harbor-view-tower-3","downstream":64.8,"gate_a":44.9,"affected":false},{"idx":42,"device_id":"HYDROLOGIC-Device-043","building":"lakeside-plaza-3","downstream":75.8,"gate_a":44.0,"affected":false},{"idx":43,"device_id":"HYDROLOGIC-Device-044","building":"cedar-court-3","downstream":67.2,"gate_a":41.4,"affected":false},{"idx":44,"device_id":"HYDROLOGIC-Device-045","building":"the-fairmont-west-3","downstream":61.1,"gate_a":49.3,"affected":false},{"idx":45,"device_id":"HYDROLOGIC-Device-046","building":"university-commons-3","downstream":75.3,"gate_a":48.3,"affected":false},{"idx":46,"device_id":"HYDROLOGIC-Device-047","building":"maple-ridge-hotel-3","downstream":63.3,"gate_a":54.9,"affected":false},{"idx":47,"device_id":"HYDROLOGIC-Device-048","building":"riverside-conference-3","downstream":59.1,"gate_a":45.2,"affected":false},{"idx":48,"device_id":"HYDROLOGIC-Device-049","building":"oakwood-residences-3","downstream":66.3,"gate_a":55.3,"affected":false},{"idx":49,"device_id":"HYDROLOGIC-Device-050","building":"summit-medical-center-3","downstream":67.5,"gate_a":47.4,"affected":false},{"idx":50,"device_id":"HYDROLOGIC-Device-051","building":"bayfront-suites-3","downstream":68.4,"gate_a":50.2,"affected":false},{"idx":51,"device_id":"HYDROLOGIC-Device-052","building":"pinewood-mall-3","downstream":73.0,"gate_a":46.7,"affected":false},{"idx":52,"device_id":"HYDROLOGIC-Device-053","building":"the-ellison-hotel-3","downstream":72.6,"gate_a":53.0,"affected":false},{"idx":53,"device_id":"HYDROLOGIC-Device-054","building":"crossroads-outlet-3","downstream":65.7,"gate_a":44.5,"affected":false},{"idx":54,"device_id":"HYDROLOGIC-Device-055","building":"stonegate-apartments-3","downstream":72.3,"gate_a":41.6,"affected":false},{"idx":55,"device_id":"HYDROLOGIC-Device-056","building":"willow-creek-resort-3","downstream":64.1,"gate_a":45.6,"affected":false},{"idx":56,"device_id":"HYDROLOGIC-Device-057","building":"metro-aquatics-center-3","downstream":70.5,"gate_a":51.1,"affected":false},{"idx":57,"device_id":"HYDROLOGIC-Device-058","building":"northside-hospital-3","downstream":69.7,"gate_a":53.9,"affected":false},{"idx":58,"device_id":"HYDROLOGIC-Device-059","building":"the-brixton-3","downstream":68.9,"gate_a":52.5,"affected":false},{"idx":59,"device_id":"HYDROLOGIC-Device-060","building":"parkview-towers-3","downstream":61.3,"gate_a":44.0,"affected":false},{"idx":60,"device_id":"HYDROLOGIC-Device-061","building":"grand-marina-4","downstream":72.3,"gate_a":54.7,"affected":false},{"idx":61,"device_id":"HYDROLOGIC-Device-062","building":"harbor-view-tower-4","downstream":68.4,"gate_a":52.0,"affected":false},{"idx":62,"device_id":"HYDROLOGIC-Device-063","building":"lakeside-plaza-4","downstream":68.0,"gate_a":52.1,"affected":false},{"idx":63,"device_id":"HYDROLOGIC-Device-064","building":"cedar-court-4","downstream":67.2,"gate_a":40.3,"affected":false},{"idx":64,"device_id":"HYDROLOGIC-Device-065","building":"the-fairmont-west-4","downstream":58.7,"gate_a":43.8,"affected":false},{"idx":65,"device_id":"HYDROLOGIC-Device-066","building":"university-commons-4","downstream":73.0,"gate_a":40.7,"affected":false},{"idx":66,"device_id":"HYDROLOGIC-Device-067","building":"maple-ridge-hotel-4","downstream":62.5,"gate_a":43.6,"affected":false},{"idx":67,"device_id":"HYDROLOGIC-Device-068","building":"riverside-conference-4","downstream":63.1,"gate_a":51.4,"affected":false},{"idx":68,"device_id":"HYDROLOGIC-Device-069","building":"oakwood-residences-4","downstream":62.3,"gate_a":50.0,"affected":false},{"idx":69,"device_id":"HYDROLOGIC-Device-070","building":"summit-medical-center-4","downstream":60.7,"gate_a":48.5,"affected":false},{"idx":70,"device_id":"HYDROLOGIC-Device-071","building":"bayfront-suites-4","downstream":66.1,"gate_a":51.8,"affected":false},{"idx":71,"device_id":"HYDROLOGIC-Device-072","building":"pinewood-mall-4","downstream":57.2,"gate_a":43.2,"affected":false},{"idx":72,"device_id":"HYDROLOGIC-Device-073","building":"the-ellison-hotel-4","downstream":60.1,"gate_a":54.7,"affected":false},{"idx":73,"device_id":"HYDROLOGIC-Device-074","building":"crossroads-outlet-4","downstream":66.5,"gate_a":40.5,"affected":false},{"idx":74,"device_id":"HYDROLOGIC-Device-075","building":"stonegate-apartments-4","downstream":63.9,"gate_a":48.4,"affected":false},{"idx":75,"device_id":"HYDROLOGIC-Device-076","building":"willow-creek-resort-4","downstream":72.8,"gate_a":51.3,"affected":false},{"idx":76,"device_id":"HYDROLOGIC-Device-077","building":"metro-aquatics-center-4","downstream":64.7,"gate_a":51.1,"affected":false},{"idx":77,"device_id":"HYDROLOGIC-Device-078","building":"northside-hospital-4","downstream":64.1,"gate_a":47.0,"affected":false},{"idx":78,"device_id":"HYDROLOGIC-Device-079","building":"the-brixton-4","downstream":61.2,"gate_a":49.2,"affected":false},{"idx":79,"device_id":"HYDROLOGIC-Device-080","building":"parkview-towers-4","downstream":64.0,"gate_a":54.3,"affected":false}],"detector":{"lockstep":23,"cusum":2.25,"firing":true},"detector_enabled":true,"pressure":[{"t":5.0,"median":66.1,"under":0},{"t":20.0,"median":66.3,"under":0},{"t":35.0,"median":66.4,"under":0},{"t":50.0,"median":66.5,"under":0},{"t":65.0,"median":66.6,"under":0},{"t":80.0,"median":66.7,"under":0},{"t":95.0,"median":66.6,"under":0},{"t":110.0,"median":66.4,"under":0},{"t":125.0,"median":66.4,"under":0},{"t":140.0,"median":66.5,"under":0},{"t":155.0,"median":66.6,"under":0},{"t":170.0,"median":66.7,"under":0},{"t":185.0,"median":66.7,"under":0},{"t":200.0,"median":67.0,"under":0},{"t":215.0,"median":66.6,"under":0},{"t":230.0,"median":66.3,"under":0},{"t":245.0,"median":66.3,"under":0},{"t":260.0,"median":66.4,"under":0},{"t":275.0,"median":66.2,"under":0},{"t":290.0,"median":66.1,"under":0},{"t":305.0,"median":66.0,"under":0},{"t":320.0,"median":66.0,"under":0},{"t":335.0,"median":66.2,"under":0},{"t":350.0,"median":66.3,"under":0},{"t":365.0,"median":66.3,"under":0},{"t":380.0,"median":66.0,"under":0},{"t":395.0,"median":66.1,"under":0},{"t":410.0,"median":66.2,"under":0},{"t":425.0,"median":65.9,"under":0},{"t":440.0,"median":65.9,"under":0},{"t":455.0,"median":65.6,"under":1},{"t":470.0,"median":64.9,"under":4}],"low_psi":20.0,"n_affected":26,"packet":{"topic":"hydroficient/grand-marina/device-001/sensors","device_id":"HYDROLOGIC-Device-001","hex":"30 E6 02 00 2C 68 79 64 72 6F 66 69 63 69 65 6E 74 2F 67 72 61 6E 64 2D 6D 61 72 69 6E 61 2F 64 65 76 69 63 65 2D 30 30 31 2F 73 65 6E 73 6F 72 73 00 7B 22 64 65 76 69 63 65 5F 69 64 22 3A 22 48 59 44 52 4F 4C 4F 47 49 43 2D 44 65 76 69 63 65 2D 30 30 31 22 2C 22 74 69 6D 65 73 74 61 6D 70 22 3A 22 32 30 32 36 2D 31 31 2D 30 33 54 31 34 3A 30 37 3A 35 35 2E 30 30 30 5A 22 2C 22 73 65 71 75 65 6E 63 65 22 3A 39 35 2C 22 72 65 61 64 69 6E 67 73 22 3A 7B 22 70 72 65 73 73 75 72 65 5F 75 70 73 74 72 65 61 6D 22 3A 36 38 2E 34 2C 22 70 72 65 73 73 75 72 65 5F 64 6F 77 6E 73 74 72 65 61 6D 22 3A 36 31 2E 35 2C 22 66 6C 6F 77 5F 72 61 74 65 22 3A 31 34 32 2E 30 2C 22 67 61 74 65 5F 61 5F 70 6F 73 69 74 69 6F 6E 22 3A 35 30 2E 35 2C 22 67 61 74 65 5F 62 5F 70 6F 73 69 74 69 6F 6E 22 3A 34 38 2E 38 7D 2C 22 73 74 61 74 75 73 22 3A 22 6E 6F 72 6D 61 6C 22 2C 22 68 6D 61 63 22 3A 22 32 34 66 34 31 65 33 38 65 61 36 65 37 66 63 62 65 36 33 65 66 61 39 33 66 64 33 63 38 61 31 37 33 63 35 64 37 31 30 37 64 39 32 31 34 64 37 36 38 37 61 38 61 31 66 38 34 62 35 66 62 30 36 38 22 7D","fields":[{"offset":0,"length":1,"label":"Fixed header (PUBLISH, QoS 0)","hex":"30","value":"type=3 qos=0"},{"offset":1,"length":2,"label":"Remaining length","hex":"E6 02","value":"358"},{"offset":3,"length":2,"label":"Topic length","hex":"00 2C","value":"44"},{"offset":5,"length":44,"label":"Topic","hex":"68 79 64 72 6F 66 69 63 69 65 6E 74 2F 67 72 61 6E 64 2D 6D 61 72 69 6E 61 2F 64 65 76 69 63 65 2D 30 30 31 2F 73 65 6E 73 6F 72 73","value":"hydroficient/grand-marina/device-001/sensors"},{"offset":49,"length":1,"label":"Property length","hex":"00","value":"0"},{"offset":50,"length":311,"label":"Payload","hex":"7B 22 64 65 76 69 63 65 5F 69 64 22 3A 22 48 59 44 52 4F 4C 4F 47 49 43 2D 44 65 76 69 63 65 2D 30 30 31 22 2C 22 74 69 6D 65 73 74 61 6D 70 22 3A 22 32 30 32 36 2D 31 31 2D 30 33 54 31 34 3A 30 37 3A 35 35 2E 30 30 30 5A 22 2C 22 73 65 71 75 65 6E 63 65 22 3A 39 35 2C 22 72 65 61 64 69 6E 67 73 22 3A 7B 22 70 72 65 73 73 75 72 65 5F 75 70 73 74 72 65 61 6D 22 3A 36 38 2E 34 2C 22 70 72 65 73 73 75 72 65 5F 64 6F 77 6E 73 74 72 65 61 6D 22 3A 36 31 2E 35 2C 22 66 6C 6F 77 5F 72 61 74 65 22 3A 31 34 32 2E 30 2C 22 67 61 74 65 5F 61 5F 70 6F 73 69 74 69 6F 6E 22 3A 35 30 2E 35 2C 22 67 61 74 65 5F 62 5F 70 6F 73 69 74 69 6F 6E 22 3A 34 38 2E 38 7D 2C 22 73 74 61 74 75 73 22 3A 22 6E 6F 72 6D 61 6C 22 2C 22 68 6D 61 63 22 3A 22 32 34 66 34 31 65 33 38 65 61 36 65 37 66 63 62 65 36 33 65 66 61 39 33 66 64 33 63 38 61 31 37 33 63 35 64 37 31 30 37 64 39 32 31 34 64 37 36 38 37 61 38 61 31 66 38 34 62 35 66 62 30 36 38 22 7D","value":"{\"device_id\":\"HYDROLOGIC-Device-001\",\"timestamp\":\"2026-11-03T14:07:55.000Z\",\"sequence\":95,\"readings\":{\"pressure_upstream\":68.4,\"pressure_downstream\":61.5,\"flow_rate\":142.0,\"gate_a_position\":50.5,\"gate_b_position\":48.8},\"status\":\"normal\",\"hmac\":\"24f41e38ea6e7fcbe63efa93fd3c8a173c5d7107d9214d7687a8a1f84b5fb068\"}"}],"wire_bytes":383,"payload_bytes":311,"checks":{"cert":true,"hmac":true,"timestamp":true,"sequence":true,"if_normal":true}}}/*SAMPLE*/;
 let gotLive = false;
 
-// WebSocket with auto-reconnect.
 let ws;
 function connect() {
   ws = new WebSocket(`ws://${location.hostname}:8765`);
@@ -241,8 +306,7 @@ function connect() {
   ws.onerror = () => ws.close();
 }
 connect();
-// If no live server answers shortly, show the embedded sample frame.
-setTimeout(() => { if (!gotLive) { document.getElementById("preview").hidden = false; render(SAMPLE); } }, 1500);
+setTimeout(() => { if (!gotLive && SAMPLE) { document.getElementById("preview").hidden = false; render(SAMPLE); } }, 1500);
 </script>
 </body>
 </html>

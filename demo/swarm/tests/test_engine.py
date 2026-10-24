@@ -34,6 +34,30 @@ def test_scheduled_run_drops_pressure_and_fires():
     assert eng.state()["n_affected"] > 0
 
 
+def test_packet_view_decodes_spotlight():
+    eng = Engine()
+    for _ in range(4):
+        eng.step(5.0)
+    pkt = eng.state()["packet"]
+    assert pkt is not None
+    assert pkt["device_id"] == "HYDROLOGIC-Device-001"
+    assert pkt["topic"].endswith("/device-001/sensors")
+    assert pkt["wire_bytes"] > pkt["payload_bytes"]  # TLS framing adds overhead
+    pos = 0
+    for f in pkt["fields"]:
+        assert f["offset"] == pos
+        pos += f["length"]
+    assert "checks" not in pkt  # not requested
+
+
+def test_checks_in_state_when_enabled():
+    eng = Engine(with_checks=True)
+    for _ in range(4):
+        eng.step(5.0)
+    checks = eng.state()["packet"]["checks"]
+    assert checks["hmac"] and checks["cert"] and checks["if_normal"]
+
+
 def test_detector_can_be_disabled():
     eng = Engine(schedule=coordinated_schedule())
     eng.set_detector(False)
