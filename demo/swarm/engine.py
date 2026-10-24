@@ -19,6 +19,7 @@ from swarm.fleet import Fleet
 class Engine:
     def __init__(self, seed=config.SEED, schedule=None, with_checks=False,
                  spotlight_idx=0):
+        self.seed = seed
         self.fleet = Fleet(seed)
         self.detector = FleetDetector()
         self.schedule = sorted(schedule or [], key=lambda s: s[0])
@@ -64,6 +65,34 @@ class Engine:
         if not enabled:
             self.detector_state = {"lockstep": 0, "cusum": 0.0, "firing": False}
 
+    def reset(self):
+        """Return to T+0, rebuilding the fleet from the same seed. The trained
+        per-device model is kept (only its running state is cleared) so reset is
+        instant during a live session."""
+        self.fleet = Fleet(self.seed)
+        self.detector = FleetDetector()
+        self._sched_i = 0
+        self.t = 0.0
+        self.detector_state = {"lockstep": 0, "cusum": 0.0, "firing": False}
+        self.pressure_history = []
+        self.last_spotlight_msg = None
+        if self.checks is not None:
+            self.checks.last_seq = {}
+
+    def jump_to(self, t_target, dt=5.0):
+        """Deterministically advance to a beat: reset, then replay to t_target,
+        so the same state is reached no matter where the presenter jumps from."""
+        self.reset()
+        while self.t + dt <= t_target + 1e-9:
+            self.step(dt)
+
+    def current_beat(self):
+        name = config.BEATS[0][0]
+        for bname, start in config.BEATS:
+            if self.t + 1e-9 >= start:
+                name = bname
+        return name
+
     def _packet_view(self):
         """Decode the spotlight device's latest message for the packet panel."""
         msg = self.last_spotlight_msg
@@ -89,6 +118,7 @@ class Engine:
         snap = self.fleet.snapshot(self.t)
         return {
             "t": round(self.t, 1),
+            "beat": self.current_beat(),
             "status": "alarm" if self.detector_state["firing"] else "nominal",
             "fleet": snap,
             "detector": self.detector_state,

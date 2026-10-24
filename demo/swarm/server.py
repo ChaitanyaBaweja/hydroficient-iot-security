@@ -51,6 +51,15 @@ class SwarmServer:
                     self.engine.set_detector(bool(msg.get("value", True)))
                 elif cmd == "pause":
                     self.paused = bool(msg.get("value", True))
+                elif cmd == "reset":
+                    self.engine.reset()
+                elif cmd == "jump":
+                    beats = dict(config.BEATS)
+                    target = beats.get(msg.get("beat"))
+                    if target is not None:
+                        self.engine.jump_to(target)
+                # Push the new state immediately so controls feel responsive.
+                websockets.broadcast(self.clients, json.dumps(self.engine.state()))
         finally:
             self.clients.discard(ws)
 
