@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hydroficient Fleet Operations</title>
+<style>
+  /* Calm ops-console look: one accent, semantic colours only for state.
+     Deliberately not the glowing P7 theme (see spec section 7 anti-goals). */
+  :root {
+    --bg: #0d1117; --panel: #161b22; --line: #21262d;
+    --fg: #e6edf3; --dim: #8b949e;
+    --accent: #58a6ff;
+    --ok: #2ea043; --ok-dim: #1f6f3f;
+    --warn: #d29922; --crit: #e5534b;
+    --mono: "Consolas", ui-monospace, monospace;
+    --sans: "Segoe UI", system-ui, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--sans);
+    display: flex; flex-direction: column; overflow: hidden;
+    font-size: clamp(12px, 1.1vw, 16px);
+  }
+  /* Header strip */
+  header {
+    display: flex; align-items: center; gap: 1.2em;
+    padding: 0.7em 1.2em; border-bottom: 1px solid var(--line);
+    background: var(--panel);
+  }
+  header .brand { font-weight: 600; letter-spacing: .02em; }
+  header .brand small { color: var(--dim); font-weight: 400; margin-left: .5em; }
+  header .spacer { flex: 1; }
+  .pill {
+    font-family: var(--mono); font-size: .9em; padding: .3em .8em;
+    border-radius: 3px; border: 1px solid var(--ok-dim); color: var(--ok);
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  .pill.alarm { color: #fff; background: var(--crit); border-color: var(--crit);
+    animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .55; } }
+  .clock { font-family: var(--mono); color: var(--dim); }
+
+  main {
+    flex: 1; display: grid; gap: 10px; padding: 10px;
+    grid-template-columns: 3fr 1.4fr; grid-template-rows: 1fr auto;
+    min-height: 0;
+  }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 10px 12px; min-height: 0; display: flex; flex-direction: column;
+  }
+  .panel h2 {
+    font-size: .72em; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--dim); font-weight: 600; margin-bottom: 8px;
+  }
+  /* Fleet grid */
+  #grid-panel { grid-row: 1 / span 2; }
+  .grid {
+    flex: 1; display: grid; gap: 5px; min-height: 0;
+    grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(8, 1fr);
+  }
+  .tile {
+    border: 1px solid var(--line); border-radius: 3px; background: #11301f;
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: center; font-family: var(--mono); line-height: 1.15;
+    color: var(--fg); overflow: hidden; transition: background .3s, outline-color .3s;
+  }
+  .tile .id { font-size: .72em; color: var(--dim); }
+  .tile .psi { font-size: 1.05em; font-variant-numeric: tabular-nums; }
+  .tile .deg { font-size: .68em; color: var(--dim); }
+  .tile.watched { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .tile.low { background: #3a1413; }
+  .tile.low .psi { color: var(--crit); }
+  .tile.flag { outline: 2px solid var(--warn); outline-offset: -2px; }
+  .legend { display: flex; gap: 1.2em; margin-top: 8px; font-size: .72em; color: var(--dim); }
+  .legend span::before {
+    content: ""; display: inline-block; width: .8em; height: .8em;
+    margin-right: .4em; vertical-align: -1px; border-radius: 2px;
+  }
+  .lg-ok::before { background: #11301f; border: 1px solid var(--ok-dim); }
+  .lg-low::before { background: #3a1413; border: 1px solid var(--crit); }
+  .lg-flag::before { background: transparent; outline: 2px solid var(--warn); }
+
+  /* Detector + pressure */
+  .stat { display: flex; justify-content: space-between; align-items: baseline;
+    font-family: var(--mono); padding: 4px 0; border-bottom: 1px solid var(--line); }
+  .stat .k { color: var(--dim); font-size: .85em; }
+  .stat .v { font-size: 1.15em; font-variant-numeric: tabular-nums; }
+  .bar { height: 7px; background: var(--line); border-radius: 4px; margin-top: 6px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+  .bar.hot > i { background: var(--crit); }
+  .verdict { margin-top: auto; padding-top: 10px; font-size: .9em; color: var(--dim); }
+  .verdict.alarm { color: var(--crit); font-weight: 600; }
+  #spark { width: 100%; flex: 1; min-height: 60px; }
+  .conn { font-family: var(--mono); font-size: .8em; color: var(--warn); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">HYDROFICIENT <small>Fleet Operations &middot; 80 HYDROLOGIC units &middot; us-east-2</small></div>
+  <div class="spacer"></div>
+  <span id="conn" class="conn"></span>
+  <span id="preview" class="conn" hidden>preview &middot; sample data</span>
+  <span id="status" class="pill">Systems nominal</span>
+  <span id="clock" class="clock">T+00:00</span>
+</header>
+
+<main>
+  <section class="panel" id="grid-panel">
+    <h2>Fleet &middot; downstream pressure (psi) / gate A (&deg;)</h2>
+    <div class="grid" id="grid"></div>
+    <div class="legend">
+      <span class="lg-ok">normal</span>
+      <span class="lg-low">below 20 psi</span>
+      <span class="lg-flag">flagged by detector</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Fleet detector</h2>
+    <div class="stat"><span class="k">Devices moving together</span><span class="v" id="lockstep">0</span></div>
+    <div class="stat"><span class="k">Fleet drift (CUSUM)</span><span class="v" id="cusum">0.0</span></div>
+    <div class="bar" id="cusumbar"><i></i></div>
+    <div class="stat"><span class="k">Detector</span><span class="v" id="detstate">on</span></div>
+    <div class="verdict" id="verdict">Watching the whole fleet at once.</div>
+  </section>
+
+  <section class="panel">
+    <h2>Fleet pressure &middot; median &amp; buildings under 20 psi</h2>
+    <svg id="spark" preserveAspectRatio="none"></svg>
+    <div class="stat"><span class="k">Median downstream</span><span class="v" id="median">&ndash;</span></div>
+    <div class="stat"><span class="k">Buildings under 20 psi</span><span class="v" id="under">0</span></div>
+  </section>
+</main>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+let lowPsi = 20;
+
+// Build the 80 tiles once.
+const grid = document.getElementById("grid");
+const tiles = [];
+for (let i = 0; i < 80; i++) {
+  const t = document.createElement("div");
+  t.className = "tile";
+  t.innerHTML = `<span class="id">${String(i + 1).padStart(3, "0")}</span>`
+    + `<span class="psi">--</span><span class="deg">--&deg;</span>`;
+  grid.appendChild(t);
+  tiles.push(t);
+}
+
+function fmtClock(t) {
+  const m = Math.floor(t / 60), s = Math.floor(t % 60);
+  return `T+${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function render(st) {
+  lowPsi = st.low_psi;
+  document.getElementById("clock").textContent = fmtClock(st.t);
+
+  const alarm = st.status === "alarm";
+  const pill = document.getElementById("status");
+  pill.textContent = alarm ? "ALARM · coordinated change" : "Systems nominal";
+  pill.classList.toggle("alarm", alarm);
+
+  for (const r of st.fleet) {
+    const t = tiles[r.idx];
+    t.querySelector(".psi").textContent = r.downstream.toFixed(0);
+    t.querySelector(".deg").textContent = r.gate_a.toFixed(0) + "°";
+    t.classList.toggle("low", r.downstream < lowPsi);
+    // "Flagged" styling only once the detector is firing, and only on moved units.
+    t.classList.toggle("flag", alarm && r.affected);
+  }
+
+  const d = st.detector;
+  document.getElementById("lockstep").textContent = d.lockstep;
+  document.getElementById("cusum").textContent = d.cusum.toFixed(1);
+  const bar = document.getElementById("cusumbar");
+  bar.querySelector("i").style.width = Math.min(100, (d.cusum / 5.0) * 100) + "%";
+  bar.classList.toggle("hot", alarm);
+  document.getElementById("detstate").textContent = st.detector_enabled ? "on" : "off";
+  const v = document.getElementById("verdict");
+  v.classList.toggle("alarm", alarm);
+  v.textContent = alarm
+    ? "Many buildings are closing their gates together — invisible on any single device."
+    : (st.detector_enabled ? "Watching the whole fleet at once." : "Detector off — nothing is watching the pattern.");
+
+  const last = st.pressure[st.pressure.length - 1];
+  if (last) {
+    document.getElementById("median").textContent = last.median.toFixed(0) + " psi";
+    document.getElementById("under").textContent = last.under;
+  }
+  drawSpark(st.pressure);
+}
+
+function drawSpark(hist) {
+  const svg = document.getElementById("spark");
+  const w = svg.clientWidth || 300, h = svg.clientHeight || 80;
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  if (hist.length < 2) return;
+  const pad = 4, maxP = 80, minP = 0;
+  const x = i => pad + (i / (hist.length - 1)) * (w - 2 * pad);
+  const y = p => h - pad - ((p - minP) / (maxP - minP)) * (h - 2 * pad);
+
+  // 20 psi reference line.
+  const ref = document.createElementNS(NS, "line");
+  ref.setAttribute("x1", pad); ref.setAttribute("x2", w - pad);
+  ref.setAttribute("y1", y(lowPsi)); ref.setAttribute("y2", y(lowPsi));
+  ref.setAttribute("stroke", "#e5534b"); ref.setAttribute("stroke-dasharray", "4 3");
+  ref.setAttribute("stroke-width", "1"); svg.appendChild(ref);
+  const lbl = document.createElementNS(NS, "text");
+  lbl.setAttribute("x", pad + 2); lbl.setAttribute("y", y(lowPsi) - 3);
+  lbl.setAttribute("fill", "#e5534b"); lbl.setAttribute("font-size", "9");
+  lbl.setAttribute("font-family", "monospace");
+  lbl.textContent = "20 psi — EPA loss-of-pressure line"; svg.appendChild(lbl);
+
+  const path = document.createElementNS(NS, "path");
+  let dstr = "";
+  hist.forEach((p, i) => { dstr += (i ? "L" : "M") + x(i).toFixed(1) + " " + y(p.median).toFixed(1); });
+  path.setAttribute("d", dstr); path.setAttribute("fill", "none");
+  path.setAttribute("stroke", "#58a6ff"); path.setAttribute("stroke-width", "1.5");
+  svg.appendChild(path);
+}
+
+// Sample frame so this page renders without a server (shared preview). The live
+// demo overwrites it the instant the WebSocket delivers real state.
+const SAMPLE = {"t":480.0,"status":"alarm","fleet":[{"idx":0,"device_id":"HYDROLOGIC-Device-001","building":"grand-marina","downstream":61.7,"gate_a":51.1,"affected":false},{"idx":1,"device_id":"HYDROLOGIC-Device-002","building":"harbor-view-tower","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":2,"device_id":"HYDROLOGIC-Device-003","building":"lakeside-plaza","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":3,"device_id":"HYDROLOGIC-Device-004","building":"cedar-court","downstream":58.8,"gate_a":14.2,"affected":true},{"idx":4,"device_id":"HYDROLOGIC-Device-005","building":"the-fairmont-west","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":5,"device_id":"HYDROLOGIC-Device-006","building":"university-commons","downstream":0.0,"gate_a":14.2,"affected":true},{"idx":6,"device_id":"HYDROLOGIC-Device-007","building":"maple-ridge-hotel","downstream":0.0,"gate_a":10.0,"affected":true},{"idx":7,"device_id":"HYDROLOGIC-Device-008","building":"riverside-conference","downstream":54.3,"gate_a":15.9,"affected":true},{"idx":8,"device_id":"HYDROLOGIC-Device-009","building":"oakwood-residences","downstream":66.1,"gate_a":15.8,"affected":true},{"idx":9,"device_id":"HYDROLOGIC-Device-010","building":"summit-medical-center","downstream":61.2,"gate_a":14.3,"affected":true},{"idx":10,"device_id":"HYDROLOGIC-Device-011","building":"bayfront-suites","downstream":16.3,"gate_a":19.2,"affected":true},{"idx":11,"device_id":"HYDROLOGIC-Device-012","building":"pinewood-mall","downstream":0.1,"gate_a":14.0,"affected":true},{"idx":12,"device_id":"HYDROLOGIC-Device-013","building":"the-ellison-hotel","downstream":51.7,"gate_a":13.8,"affected":true},{"idx":13,"device_id":"HYDROLOGIC-Device-014","building":"crossroads-outlet","downstream":60.3,"gate_a":27.4,"affected":true},{"idx":14,"device_id":"HYDROLOGIC-Device-015","building":"stonegate-apartments","downstream":21.4,"gate_a":21.6,"affected":true},{"idx":15,"device_id":"HYDROLOGIC-Device-016","building":"willow-creek-resort","downstream":29.5,"gate_a":24.4,"affected":true},{"idx":16,"device_id":"HYDROLOGIC-Device-017","building":"metro-aquatics-center","downstream":69.3,"gate_a":26.8,"affected":true},{"idx":17,"device_id":"HYDROLOGIC-Device-018","building":"northside-hospital","downstream":61.9,"gate_a":32.2,"affected":true},{"idx":18,"device_id":"HYDROLOGIC-Device-019","building":"the-brixton","downstream":73.5,"gate_a":30.3,"affected":true},{"idx":19,"device_id":"HYDROLOGIC-Device-020","building":"parkview-towers","downstream":52.9,"gate_a":27.8,"affected":true},{"idx":20,"device_id":"HYDROLOGIC-Device-021","building":"grand-marina-2","downstream":57.9,"gate_a":35.2,"affected":true},{"idx":21,"device_id":"HYDROLOGIC-Device-022","building":"harbor-view-tower-2","downstream":49.8,"gate_a":38.1,"affected":true},{"idx":22,"device_id":"HYDROLOGIC-Device-023","building":"lakeside-plaza-2","downstream":44.4,"gate_a":30.3,"affected":true},{"idx":23,"device_id":"HYDROLOGIC-Device-024","building":"cedar-court-2","downstream":70.1,"gate_a":44.0,"affected":true},{"idx":24,"device_id":"HYDROLOGIC-Device-025","building":"the-fairmont-west-2","downstream":60.4,"gate_a":45.1,"affected":true},{"idx":25,"device_id":"HYDROLOGIC-Device-026","building":"university-commons-2","downstream":72.1,"gate_a":43.4,"affected":true},{"idx":26,"device_id":"HYDROLOGIC-Device-027","building":"maple-ridge-hotel-2","downstream":56.1,"gate_a":47.0,"affected":true},{"idx":27,"device_id":"HYDROLOGIC-Device-028","building":"riverside-conference-2","downstream":67.4,"gate_a":39.8,"affected":true},{"idx":28,"device_id":"HYDROLOGIC-Device-029","building":"oakwood-residences-2","downstream":66.3,"gate_a":46.4,"affected":true},{"idx":29,"device_id":"HYDROLOGIC-Device-030","building":"summit-medical-center-2","downstream":72.9,"gate_a":45.9,"affected":false},{"idx":30,"device_id":"HYDROLOGIC-Device-031","building":"bayfront-suites-2","downstream":67.4,"gate_a":47.0,"affected":false},{"idx":31,"device_id":"HYDROLOGIC-Device-032","building":"pinewood-mall-2","downstream":73.2,"gate_a":49.4,"affected":false},{"idx":32,"device_id":"HYDROLOGIC-Device-033","building":"the-ellison-hotel-2","downstream":71.4,"gate_a":47.4,"affected":false},{"idx":33,"device_id":"HYDROLOGIC-Device-034","building":"crossroads-outlet-2","downstream":73.2,"gate_a":46.3,"affected":false},{"idx":34,"device_id":"HYDROLOGIC-Device-035","building":"stonegate-apartments-2","downstream":71.0,"gate_a":49.9,"affected":false},{"idx":35,"device_id":"HYDROLOGIC-Device-036","building":"willow-creek-resort-2","downstream":61.0,"gate_a":46.8,"affected":false},{"idx":36,"device_id":"HYDROLOGIC-Device-037","building":"metro-aquatics-center-2","downstream":60.2,"gate_a":41.4,"affected":false},{"idx":37,"device_id":"HYDROLOGIC-Device-038","building":"northside-hospital-2","downstream":64.8,"gate_a":51.9,"affected":false},{"idx":38,"device_id":"HYDROLOGIC-Device-039","building":"the-brixton-2","downstream":61.3,"gate_a":47.8,"affected":false},{"idx":39,"device_id":"HYDROLOGIC-Device-040","building":"parkview-towers-2","downstream":54.1,"gate_a":40.8,"affected":false},{"idx":40,"device_id":"HYDROLOGIC-Device-041","building":"grand-marina-3","downstream":68.8,"gate_a":45.0,"affected":false},{"idx":41,"device_id":"HYDROLOGIC-Device-042","building":"harbor-view-tower-3","downstream":64.8,"gate_a":44.9,"affected":false},{"idx":42,"device_id":"HYDROLOGIC-Device-043","building":"lakeside-plaza-3","downstream":75.8,"gate_a":44.0,"affected":false},{"idx":43,"device_id":"HYDROLOGIC-Device-044","building":"cedar-court-3","downstream":67.3,"gate_a":41.4,"affected":false},{"idx":44,"device_id":"HYDROLOGIC-Device-045","building":"the-fairmont-west-3","downstream":61.3,"gate_a":49.8,"affected":false},{"idx":45,"device_id":"HYDROLOGIC-Device-046","building":"university-commons-3","downstream":75.3,"gate_a":48.2,"affected":false},{"idx":46,"device_id":"HYDROLOGIC-Device-047","building":"maple-ridge-hotel-3","downstream":63.3,"gate_a":54.9,"affected":false},{"idx":47,"device_id":"HYDROLOGIC-Device-048","building":"riverside-conference-3","downstream":59.2,"gate_a":45.0,"affected":false},{"idx":48,"device_id":"HYDROLOGIC-Device-049","building":"oakwood-residences-3","downstream":66.4,"gate_a":55.5,"affected":false},{"idx":49,"device_id":"HYDROLOGIC-Device-050","building":"summit-medical-center-3","downstream":67.5,"gate_a":47.6,"affected":false},{"idx":50,"device_id":"HYDROLOGIC-Device-051","building":"bayfront-suites-3","downstream":68.4,"gate_a":50.2,"affected":false},{"idx":51,"device_id":"HYDROLOGIC-Device-052","building":"pinewood-mall-3","downstream":73.0,"gate_a":46.7,"affected":false},{"idx":52,"device_id":"HYDROLOGIC-Device-053","building":"the-ellison-hotel-3","downstream":72.6,"gate_a":52.6,"affected":false},{"idx":53,"device_id":"HYDROLOGIC-Device-054","building":"crossroads-outlet-3","downstream":65.6,"gate_a":44.5,"affected":false},{"idx":54,"device_id":"HYDROLOGIC-Device-055","building":"stonegate-apartments-3","downstream":72.4,"gate_a":41.7,"affected":false},{"idx":55,"device_id":"HYDROLOGIC-Device-056","building":"willow-creek-resort-3","downstream":64.1,"gate_a":45.6,"affected":false},{"idx":56,"device_id":"HYDROLOGIC-Device-057","building":"metro-aquatics-center-3","downstream":70.5,"gate_a":51.1,"affected":false},{"idx":57,"device_id":"HYDROLOGIC-Device-058","building":"northside-hospital-3","downstream":69.6,"gate_a":54.4,"affected":false},{"idx":58,"device_id":"HYDROLOGIC-Device-059","building":"the-brixton-3","downstream":68.8,"gate_a":52.5,"affected":false},{"idx":59,"device_id":"HYDROLOGIC-Device-060","building":"parkview-towers-3","downstream":61.3,"gate_a":44.0,"affected":false},{"idx":60,"device_id":"HYDROLOGIC-Device-061","building":"grand-marina-4","downstream":72.3,"gate_a":54.8,"affected":false},{"idx":61,"device_id":"HYDROLOGIC-Device-062","building":"harbor-view-tower-4","downstream":68.6,"gate_a":51.8,"affected":false},{"idx":62,"device_id":"HYDROLOGIC-Device-063","building":"lakeside-plaza-4","downstream":68.0,"gate_a":51.4,"affected":false},{"idx":63,"device_id":"HYDROLOGIC-Device-064","building":"cedar-court-4","downstream":67.1,"gate_a":40.3,"affected":false},{"idx":64,"device_id":"HYDROLOGIC-Device-065","building":"the-fairmont-west-4","downstream":58.8,"gate_a":43.8,"affected":false},{"idx":65,"device_id":"HYDROLOGIC-Device-066","building":"university-commons-4","downstream":73.0,"gate_a":40.7,"affected":false},{"idx":66,"device_id":"HYDROLOGIC-Device-067","building":"maple-ridge-hotel-4","downstream":62.6,"gate_a":43.6,"affected":false},{"idx":67,"device_id":"HYDROLOGIC-Device-068","building":"riverside-conference-4","downstream":63.0,"gate_a":52.2,"affected":false},{"idx":68,"device_id":"HYDROLOGIC-Device-069","building":"oakwood-residences-4","downstream":62.3,"gate_a":50.5,"affected":false},{"idx":69,"device_id":"HYDROLOGIC-Device-070","building":"summit-medical-center-4","downstream":60.8,"gate_a":48.6,"affected":false},{"idx":70,"device_id":"HYDROLOGIC-Device-071","building":"bayfront-suites-4","downstream":66.2,"gate_a":52.3,"affected":false},{"idx":71,"device_id":"HYDROLOGIC-Device-072","building":"pinewood-mall-4","downstream":57.1,"gate_a":43.2,"affected":false},{"idx":72,"device_id":"HYDROLOGIC-Device-073","building":"the-ellison-hotel-4","downstream":60.0,"gate_a":54.7,"affected":false},{"idx":73,"device_id":"HYDROLOGIC-Device-074","building":"crossroads-outlet-4","downstream":66.8,"gate_a":41.1,"affected":false},{"idx":74,"device_id":"HYDROLOGIC-Device-075","building":"stonegate-apartments-4","downstream":63.9,"gate_a":48.4,"affected":false},{"idx":75,"device_id":"HYDROLOGIC-Device-076","building":"willow-creek-resort-4","downstream":72.7,"gate_a":51.3,"affected":false},{"idx":76,"device_id":"HYDROLOGIC-Device-077","building":"metro-aquatics-center-4","downstream":64.6,"gate_a":51.1,"affected":false},{"idx":77,"device_id":"HYDROLOGIC-Device-078","building":"northside-hospital-4","downstream":64.0,"gate_a":47.0,"affected":false},{"idx":78,"device_id":"HYDROLOGIC-Device-079","building":"the-brixton-4","downstream":61.1,"gate_a":49.2,"affected":false},{"idx":79,"device_id":"HYDROLOGIC-Device-080","building":"parkview-towers-4","downstream":63.9,"gate_a":54.3,"affected":false}],"detector":{"lockstep":24,"cusum":2.69,"firing":true},"detector_enabled":true,"pressure":[{"t":5.0,"median":66.1,"under":0},{"t":20.0,"median":66.3,"under":0},{"t":35.0,"median":66.4,"under":0},{"t":50.0,"median":66.5,"under":0},{"t":65.0,"median":66.6,"under":0},{"t":80.0,"median":66.7,"under":0},{"t":95.0,"median":66.6,"under":0},{"t":110.0,"median":66.4,"under":0},{"t":125.0,"median":66.4,"under":0},{"t":140.0,"median":66.5,"under":0},{"t":155.0,"median":66.6,"under":0},{"t":170.0,"median":66.7,"under":0},{"t":185.0,"median":66.7,"under":0},{"t":200.0,"median":67.0,"under":0},{"t":215.0,"median":66.6,"under":0},{"t":230.0,"median":66.3,"under":0},{"t":245.0,"median":66.3,"under":0},{"t":260.0,"median":66.4,"under":0},{"t":275.0,"median":66.2,"under":0},{"t":290.0,"median":66.1,"under":0},{"t":305.0,"median":66.0,"under":0},{"t":320.0,"median":66.0,"under":0},{"t":335.0,"median":66.2,"under":0},{"t":350.0,"median":66.3,"under":0},{"t":365.0,"median":66.3,"under":0},{"t":380.0,"median":66.0,"under":0},{"t":395.0,"median":66.1,"under":0},{"t":410.0,"median":66.2,"under":0},{"t":425.0,"median":65.9,"under":0},{"t":440.0,"median":65.9,"under":0},{"t":455.0,"median":65.6,"under":1},{"t":470.0,"median":64.9,"under":4}],"low_psi":20.0,"n_affected":28};
+let gotLive = false;
+
+// WebSocket with auto-reconnect.
+let ws;
+function connect() {
+  ws = new WebSocket(`ws://${location.hostname}:8765`);
+  const conn = document.getElementById("conn");
+  ws.onopen = () => { conn.textContent = ""; };
+  ws.onmessage = e => { gotLive = true; document.getElementById("preview").hidden = true; render(JSON.parse(e.data)); };
+  ws.onclose = () => { conn.textContent = "reconnecting…"; setTimeout(connect, 1000); };
+  ws.onerror = () => ws.close();
+}
+connect();
+// If no live server answers shortly, show the embedded sample frame.
+setTimeout(() => { if (!gotLive) { document.getElementById("preview").hidden = false; render(SAMPLE); } }, 1500);
+</script>
+</body>
+</html>
