@@ -1,0 +1,89 @@
+<title>Swarm Attack Reading Pack</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+  :root {
+    --bg: #0b0f16; --panel: #141a24; --line: #232c3a;
+    --fg: #e8eef7; --dim: #93a0b4; --accent: #58a6ff;
+    --disp: "Space Grotesk", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--disp); line-height: 1.5;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0 48px;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header { padding: 40px 0 20px; border-bottom: 1px solid var(--line); }
+  .eyebrow { font-family: var(--mono); font-size: .8rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); font-weight: 700; margin: 12px 0 8px; letter-spacing: -.02em; }
+  header p { color: var(--dim); max-width: 60ch; }
+  .tier { font-family: var(--mono); font-size: .78rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--dim); margin: 28px 0 10px; }
+  .item { display: block; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 16px 18px; margin-bottom: 12px; text-decoration: none; color: inherit;
+    transition: border-color .2s; }
+  .item:hover { border-color: var(--accent); }
+  .item h3 { font-size: 1.05rem; font-weight: 600; }
+  .item .src { font-family: var(--mono); font-size: .76rem; color: var(--accent); margin: 4px 0 8px;
+    word-break: break-all; }
+  .item p { color: #cdd6e4; font-size: .95rem; }
+  footer { margin-top: 30px; font-family: var(--mono); font-size: .72rem; color: var(--dim); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Hydroficient workshop &middot; take-home</div>
+    <h1>Reading pack: AI swarm attacks</h1>
+    <p>Everything from today's session, shortest and most readable first, deeper cuts at the end. Each link has a line on why it's worth your time.</p>
+  </header>
+
+  <div class="tier">Start here</div>
+
+  <a class="item" href="https://www.anthropic.com/research/self-replicating-ai" target="_blank" rel="noopener">
+    <h3>AI models may be capable of self-replicating without a datacenter</h3>
+    <div class="src">anthropic.com/research/self-replicating-ai</div>
+    <p>The report behind the session. Read what it actually claims, and note the honest caveat: the end-to-end test ran on emulators with no security, so it's an upper bound, not a worm in the wild.</p>
+  </a>
+
+  <a class="item" href="https://www.cisa.gov/news-events/cybersecurity-advisories/aa26-097a" target="_blank" rel="noopener">
+    <h3>CISA advisory AA26-097A: attacks on water-sector control systems</h3>
+    <div class="src">cisa.gov/news-events/cybersecurity-advisories/aa26-097a</div>
+    <p>Real attackers kept the normal control logic running but overrode the safe limits and switched off alarms. That "everything looks valid" move is the heart of today's demo.</p>
+  </a>
+
+  <a class="item" href="https://19january2017snapshot.epa.gov/region8-waterops/emergencies-and-security-loss-pressure_.html" target="_blank" rel="noopener">
+    <h3>EPA: what happens when water pressure drops</h3>
+    <div class="src">epa.gov &middot; loss of pressure</div>
+    <p>Why 20 psi is the line. Below it, contaminated groundwater can be pulled into the pipes and fire sprinklers lose the pressure they need.</p>
+  </a>
+
+  <div class="tier">Go deeper</div>
+
+  <a class="item" href="https://www.usenix.org/conference/usenixsecurity17/technical-sessions/presentation/antonakakis" target="_blank" rel="noopener">
+    <h3>Understanding the Mirai botnet</h3>
+    <div class="src">USENIX Security 2017</div>
+    <p>In 2016 a worm took over ~600,000 devices with no AI at all — just factory-default passwords. A reminder that the basics still matter most.</p>
+  </a>
+
+  <a class="item" href="https://ai.meta.com/research/publications/copycatch-stopping-group-attacks-by-spotting-lockstep-behavior-in-social-networks" target="_blank" rel="noopener">
+    <h3>CopyCatch: spotting lockstep behaviour</h3>
+    <div class="src">Meta Research, WWW 2013</div>
+    <p>The idea behind the defence you saw: catch a group acting in sync, even when each member looks fine on its own. Facebook used it against fake-Like rings.</p>
+  </a>
+
+  <a class="item" href="https://arxiv.org/abs/1907.07487" target="_blank" rel="noopener">
+    <h3>Constrained concealment attacks against anomaly detectors in ICS</h3>
+    <div class="src">arxiv.org/abs/1907.07487</div>
+    <p>For the ambitious: how an attacker can shape data to slip past a detector. Changing just 4 of 82 sensors dropped one detector's catch rate from 68% to 12%.</p>
+  </a>
+
+  <footer>
+    Curated for the Hydroficient externship. Defences map to the curriculum: identity (Projects 4&ndash;5), message integrity (6), live dashboard (7), anomaly detection (8).
+  </footer>
+</div>

@@ -1,0 +1,125 @@
+<title>AI Swarm Attacks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Deliberately single dark "ops console" look, matching the live demo. */
+  :root {
+    --bg: #0b0f16; --panel: #141a24; --line: #232c3a;
+    --fg: #e8eef7; --dim: #93a0b4; --accent: #58a6ff;
+    --warn: #d9a441; --crit: #e5604d;
+    --disp: "Space Grotesk", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--disp);
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0 48px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  .eyebrow { font-family: var(--mono); font-size: .8rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent); }
+
+  /* Hero */
+  .hero { padding: 40px 0 28px; border-bottom: 1px solid var(--line); }
+  .hero h1 { font-size: clamp(2rem, 6vw, 3.4rem); font-weight: 700; line-height: 1.05;
+    letter-spacing: -.02em; margin: 14px 0 10px; text-wrap: balance; }
+  .hero .sub { font-size: clamp(1rem, 2.4vw, 1.25rem); color: var(--dim); max-width: 46ch; }
+  .fleet { margin: 26px 0 4px; display: grid; grid-template-columns: repeat(16, 1fr);
+    gap: 4px; }
+  .fleet i { aspect-ratio: 1; border-radius: 2px; background: #14314a;
+    outline: 1px solid #1d3b57; transition: background .6s, outline-color .6s; }
+  .fleet i.hot { background: #3a2230; outline-color: var(--warn); }
+  .cap { font-family: var(--mono); font-size: .75rem; color: var(--dim); margin-top: 10px; }
+
+  section { padding: 26px 0; border-bottom: 1px solid var(--line); }
+  h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: 12px; }
+  p { color: #cdd6e4; max-width: 62ch; }
+  .quote { border-left: 3px solid var(--accent); padding: 4px 0 4px 16px; margin: 14px 0;
+    color: var(--fg); font-size: 1.05rem; }
+  .quote cite { display: block; font-style: normal; font-family: var(--mono);
+    font-size: .78rem; color: var(--dim); margin-top: 6px; }
+
+  .teasers { display: grid; gap: 12px; grid-template-columns: repeat(3, 1fr); }
+  .teaser { background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+    padding: 16px; }
+  .teaser .n { font-family: var(--mono); color: var(--accent); font-size: .8rem; }
+  .teaser p { font-size: .98rem; margin-top: 8px; color: var(--fg); }
+
+  .facts { display: flex; flex-wrap: wrap; gap: 10px 28px; font-family: var(--mono);
+    font-size: .95rem; color: var(--fg); }
+  .facts .k { color: var(--dim); }
+  .who { color: #cdd6e4; }
+  footer { padding-top: 22px; }
+  .note { font-family: var(--mono); font-size: .72rem; color: var(--dim); margin-top: 18px; }
+  @media (max-width: 560px) { .teasers { grid-template-columns: 1fr; }
+    .fleet { grid-template-columns: repeat(12, 1fr); } }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Hydroficient workshop &middot; live session</div>
+    <h1>AI Swarm Attacks: Defending an IoT Fleet</h1>
+    <p class="sub">Michael raised AI swarm attacks at the last company meeting. Our SME, Chaitanya, is going to show you what one actually looks like.</p>
+    <div class="fleet" id="fleet" aria-hidden="true"></div>
+    <div class="cap">A fleet of 80 water regulators. Watch which ones you'd notice.</div>
+  </header>
+
+  <section>
+    <h2>Why this, now</h2>
+    <p>In August 2026, attackers changed equipment settings and switched off the alarms at two Colorado water utilities. And a new report warns that small AI models are getting good enough to spread on their own.</p>
+    <blockquote class="quote">
+      Small models "may be months away from being capable enough to self-replicate on commercial IoT devices."
+      <cite>Anthropic Frontier Red Team, October 2026</cite>
+    </blockquote>
+    <p>Chaitanya will run a simulated swarm attack on a fleet of Hydroficient regulators and walk through why these attacks are so hard to spot until you are already under one &mdash; and what a security engineer does about it.</p>
+  </section>
+
+  <section>
+    <h2>What you'll see</h2>
+    <div class="teasers">
+      <div class="teaser"><div class="n">01</div><p>An attacker learn what "normal" looks like from real device traffic.</p></div>
+      <div class="teaser"><div class="n">02</div><p>80 trusted devices turn &mdash; without tripping a single alarm.</p></div>
+      <div class="teaser"><div class="n">03</div><p>The defence that sees what each device, on its own, cannot.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Details</h2>
+    <div class="facts">
+      <div><span class="k">When</span> &nbsp;Tuesday, November 3 &middot; time to be announced</div>
+      <div><span class="k">Where</span> &nbsp;Live on Zoom</div>
+      <div><span class="k">Length</span> &nbsp;~30 min + Q&amp;A</div>
+    </div>
+    <p class="who" style="margin-top:14px">For every extern, whatever project you're on. No prep needed &mdash; come watch, then stay for questions.</p>
+  </section>
+
+  <footer>
+    <div class="eyebrow">Hosted by Christie &middot; presented by Chaitanya</div>
+    <p class="note">Illustrative fleet and scenario for training. Not a disclosure of a real vulnerability, and no real systems or data are involved.</p>
+  </footer>
+</div>
+
+<script>
+  // Calm ambient animation: a slow wave of tiles shifts and settles, hinting at
+  // coordinated movement without giving away the demo.
+  const fleet = document.getElementById("fleet");
+  const N = 96;
+  const tiles = [];
+  for (let i = 0; i < N; i++) { const el = document.createElement("i"); fleet.appendChild(el); tiles.push(el); }
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce) {
+    setInterval(() => {
+      const k = 6 + Math.floor(Math.random() * 8);
+      for (let j = 0; j < k; j++) {
+        const t = tiles[Math.floor(Math.random() * N)];
+        t.classList.add("hot");
+        setTimeout(() => t.classList.remove("hot"), 1200 + Math.random() * 1600);
+      }
+    }, 900);
+  }
+</script>
