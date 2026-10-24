@@ -84,7 +84,10 @@ def describe_publish(packet):
 
     plen, j = _decode_varint(packet, i)
     add(i, j - i, "Property length", str(plen))
-    i = j + plen
+    i = j
+    if plen:
+        add(i, plen, "Properties", "")
+        i += plen
 
     payload = packet[i:]
     add(i, len(payload), "Payload", payload.decode("utf-8", "replace"))

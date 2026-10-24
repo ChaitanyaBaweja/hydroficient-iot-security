@@ -11,6 +11,7 @@ import http.server
 import json
 import pathlib
 import threading
+import time
 
 import websockets
 
@@ -64,12 +65,27 @@ class SwarmServer:
             self.clients.discard(ws)
 
     async def _producer(self):
+        # The engine always advances in fixed SIM_DT (5 s) steps, so a continuous
+        # run, a reset and a jump all share one trajectory. Wall-clock and speed
+        # only decide how often a step happens. budget accumulates sim-seconds
+        # owed; whole SIM_DT steps are taken when enough have accrued.
+        sim_dt = config.PUBLISH_INTERVAL_S
+        budget = 0.0
+        last = time.monotonic()
         while True:
             await asyncio.sleep(self.tick_s)
+            now = time.monotonic()
+            elapsed = now - last
+            last = now
             if self.paused or self.engine.t >= config.DEMO_END_S:
                 continue
-            self.engine.step(self.tick_s * self.speed)
-            if self.clients:
+            budget += elapsed * self.speed
+            stepped = False
+            while budget >= sim_dt and self.engine.t < config.DEMO_END_S:
+                self.engine.step(sim_dt)
+                budget -= sim_dt
+                stepped = True
+            if stepped and self.clients:
                 websockets.broadcast(self.clients, json.dumps(self.engine.state()))
 
     async def run(self):

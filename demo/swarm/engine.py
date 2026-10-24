@@ -30,6 +30,7 @@ class Engine:
         self.pressure_history = []
         self.spotlight_idx = spotlight_idx
         self.last_spotlight_msg = None
+        self.spotlight_checks = None
         # Per-device checks train an Isolation Forest, so build only on request.
         self.checks = None
         if with_checks:
@@ -50,6 +51,10 @@ class Engine:
         for m in msgs:
             if m["device_id"] == spot_id:
                 self.last_spotlight_msg = m
+                # Compute checks once per real message (sequence advances), so
+                # re-rendering the same frame never re-fails the sequence check.
+                if self.checks is not None:
+                    self.spotlight_checks = self.checks.check_all(m, self.t)
         if self.detector_enabled:
             self.detector_state = self.detector.update(self.fleet.gate_vector())
 
@@ -76,6 +81,7 @@ class Engine:
         self.detector_state = {"lockstep": 0, "cusum": 0.0, "firing": False}
         self.pressure_history = []
         self.last_spotlight_msg = None
+        self.spotlight_checks = None
         if self.checks is not None:
             self.checks.last_seq = {}
 
@@ -109,8 +115,8 @@ class Engine:
             "wire_bytes": codec.tls13_record_len(len(pkt)),
             "payload_bytes": len(payload),
         }
-        if self.checks is not None:
-            view["checks"] = self.checks.check_all(msg, self.t)
+        if self.spotlight_checks is not None:
+            view["checks"] = self.spotlight_checks
         return view
 
     def state(self):
@@ -131,7 +137,7 @@ class Engine:
 
 
 def coordinated_schedule(seed=config.SEED, start_s=420.0, step_s=5.0,
-                         n_targets=60, per_step_deg=3.0):
+                         n_targets=60, per_step_deg=2.0):
     """A neutral placeholder driver so the view has motion to show and the
     detector has something to catch: a fleet-wide, gradual closing of gates
     across many buildings. The real demo replaces this with the storyboard.
