@@ -78,6 +78,7 @@ class Engine:
         self.detector = FleetDetector()
         self._sched_i = 0
         self.t = 0.0
+        self.detector_enabled = True  # R gives a clean, predictable starting state
         self.detector_state = {"lockstep": 0, "cusum": 0.0, "firing": False}
         self.pressure_history = []
         self.last_spotlight_msg = None
